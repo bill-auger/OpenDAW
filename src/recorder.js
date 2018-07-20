@@ -1,5 +1,4 @@
 (function(window){
-
   var WORKER_PATH = 'src/recorderWorker.js';
 
   var Recorder = function(source, cfg){
