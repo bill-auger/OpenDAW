@@ -47,6 +47,11 @@
             worker.postMessage({ command: 'clear' });
         }
 
+
+this.setLatency = function(latencyDelta) { worker.postMessage({ command:     'setLatency'  ,
+                                                                latencyDelta: latencyDelta }) }
+
+
         this.getBuffer = function(cb) {
             currCallback = cb || config.callback;
             worker.postMessage({ command: 'getBuffer' })

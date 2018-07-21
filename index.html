@@ -237,7 +237,7 @@
         <div class="container-fluid">
             <div id="holder">
             <div class="row-fluid" id="trackBed">
-                <div class="span3">
+                <div id="sidebar-div" class="span3">
                     <div class="sidebar tabbable tabs-below well">
                         <div class="tab-content tabContents">
                             <div class="tab-pane sidebar-nav sidebarTab active" id="library">
@@ -380,9 +380,33 @@
                 </div>
             </div>
         </div>
+
         <script src="js/jquery-1.9.1.min.js"></script>
         <script src="js/jquery-knob.js"></script>
         <script src="js/jquery-ui.js"></script>
+
+
+<style>
+html , body , #sidebar-div , .well , .trackBox , .track { background-color: #000 ; color: #888 ; }
+#latency-input { width: 6em ; right: 0 ; }
+/* .sample , input[type=number] { background-color: #222 ; color: #888 ; } */
+#fake-modal-bg-div { position: absolute ; top: 0 ; left: 0 ; bottom: 0 ; right: 0 ; z-index: 2 ;
+                     background-color: #000 ; opacity: 0.6 ;                                   }
+#fake-modal-div    { position: absolute ; top: 50% ; left: 50% ; z-index: 2 ;
+                     width: 54em ; height: 16em ;
+                     margin-top: -8em ; margin-left: -27em ;
+                     padding: 1em ; border: 1px solid ; border-radius: 2em ;
+                     background-color: #444 ; opacity: 1.0 ;                                   }
+</style>
+<div id="fake-modal-bg-div"></div>
+<div id="fake-modal-div">
+  <div id="fake-modal-div-l"></div>
+  <div id="fake-modal-div-c"></div>
+  <div id="fake-modal-div-r">
+    <input id="latency-input" type="number" class="btn btn-mini" value="0" />
+  </div>
+</div>
+
 
         <script src="js/bootstrap-button.js"></script>
         <script src="js/bootstrap.min.js"></script>

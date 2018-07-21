@@ -92,6 +92,7 @@ if (sampleTitle == 'latency.wav') console.info("createClip() out") ;
     var processData = function(json) {
         var numberOfTracks = parseInt(json.projectInfo.tracks);
         effects = json.projectInfo.effects;
+
         //create track-specific nodes
         globalNumberOfTracks = numberOfTracks;
         for (var i = 0; i < numberOfTracks; i++) {
@@ -149,7 +150,7 @@ if (sampleTitle == 'latency.wav') console.info("createClip() out") ;
     xhr.send();
 
 
-createTrack(42);
+createTrack(LATENCY_IN_TRACK_N);
 var latency_ping_dict = {"id":"42","url":"src/data/samples/latency.wav","track":"42","startTime":[0],"duration":"1.122244954109192"} ;
 
 LatencyClip = createWavesurfer(latency_ping_dict) ;
@@ -681,19 +682,24 @@ $(document).ready(function() {
     });
 
 
-var LATENCY_IN_TRACK_N = 42 ;
-var LATENCY_OUT_TRACK_N = 43 ;
+var LATENCY_IN_TRACK_N = 42;
+var LATENCY_OUT_TRACK_N = 43;
+createNodes(LATENCY_IN_TRACK_N);
+createNodes(LATENCY_OUT_TRACK_N);
+createTrack(LATENCY_OUT_TRACK_N);
 [ { 'track-n': LATENCY_IN_TRACK_N  , 'label': 'Input' } ,
   { 'track-n': LATENCY_OUT_TRACK_N , 'label': 'Reference' } ].forEach(function(latencyTrackDict)
 {
-var latencyTrackN = latencyTrackDict['track-n'] ;
-var latencyTrackLabel = latencyTrackDict['label'] ;
-createTrack(latencyTrackN);
-var latencyTrack = document.getElementById("selectTrack" + latencyTrackN) ;
-document.getElementById('fake-modal-div').appendChild(latencyTrack) ;
-document.getElementById('track' + latencyTrackN + 'title').textContent = latencyTrackLabel ;
-createNodes(latencyTrackN);
+var latencyTrackN = latencyTrackDict['track-n'];
+var latencyTrackLabel = latencyTrackDict['label'];
+var latencyTrack = document.getElementById("selectTrack" + latencyTrackN);
+document.getElementById('fake-modal-div').appendChild(latencyTrack);
+document.getElementById('track' + latencyTrackN + 'title').textContent = latencyTrackLabel;
 }) ;
+$('#latency-input').change(function() {
+console.info("#latency-input onchange=" + (this).val());
+                                        /*borked*/ activeRecorder.setLatency((this).val()) ; }) ;
+
 //             var source = ac.createBufferSource() ;
 //             source.connect(trackInputNodes[LatencyClip.track]) ;
 //             source.buffer = buffers[LatencyClip.id].buffer;
@@ -774,7 +780,7 @@ function createTrack(trackNumber) {
     });
 
 
-$('#latency-input').click(function() { activeRecorder.setLatency(-1) ; }) ;
+// $('#latency-input' + trackNumber).change(function() { activeRecorder.setLatency((this).val()) ; }) ;
 
 
     $("#record" + trackNumber).click(function() {

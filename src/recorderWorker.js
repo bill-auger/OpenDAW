@@ -14,6 +14,9 @@ this.onmessage = function(e) {
         case 'exportWAV':
             exportWAV(e.data.type);
             break;
+        case 'setLatency':
+            setLatency(e.data.latencyDelta);
+            break;
         case 'getBuffer':
             getBuffer();
             break;
@@ -43,6 +46,8 @@ function exportWAV(type) {
     this.postMessage(audioBlob);
 }
 
+var Latency = 0 ; function setLatency(latencyDelta) { Latency += latencyDelta ; }
+
 function getBuffer() {
     var buffers = [];
     buffers.push(mergeBuffers(recBuffersL, recLength));
@@ -58,7 +63,16 @@ function clear() {
 
 function mergeBuffers(recBuffers, recLength) {
     var result = new Float32Array(recLength);
-    var offset = 0;
+//     var offset = 0;
+
+
+    var offset;
+    var totalLen;
+
+for (var bufN = 0 ; bufN < recBuffers.length ; bufN++) totalLen += recBuffers[bufN].length ;
+offset = (Latency <= 0       ) ? 0            :
+         (Latency >= totalLen) ? totalLen - 1 : Latency ;
+
 
     for (var i = 0; i < recBuffers.length; i++) {
         result.set(recBuffers[i], offset);
