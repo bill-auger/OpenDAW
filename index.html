@@ -213,7 +213,7 @@
         </style>
     </head>
     <body>
-        <div class="navbar navbar-inverse navbar-fixed-top">
+        <div id="top-nav-div" class="navbar navbar-inverse navbar-fixed-top">
             <div class="navbar-inner">
               <div class="container-fluid">
                 <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
@@ -388,8 +388,9 @@
 
 <style>
 html , body , #sidebar-div , .well , .trackBox , .track { background-color: #000 ; color: #888 ; }
-#latency-input { width: 6em ; right: 0 ; }
+#top-nav-div { z-index: 1 ; }
 /* .sample , input[type=number] { background-color: #222 ; color: #888 ; } */
+#fake-modal-bg-div , #fake-modal-div { display: none ; }
 #fake-modal-bg-div { position: absolute ; top: 0 ; left: 0 ; bottom: 0 ; right: 0 ; z-index: 2 ;
                      background-color: #000 ; opacity: 0.6 ;                                   }
 #fake-modal-div    { position: absolute ; top: 50% ; left: 50% ; z-index: 2 ;
@@ -397,6 +398,10 @@ html , body , #sidebar-div , .well , .trackBox , .track { background-color: #000
                      margin-top: -8em ; margin-left: -27em ;
                      padding: 1em ; border: 1px solid ; border-radius: 2em ;
                      background-color: #444 ; opacity: 1.0 ;                                   }
+#latency-input { width: 6em ; right: 0 ; }
+#track42 , #track43 { overflow: hidden ; }
+
+/* #fake-modal-div { top: 25% ; left: 75% ; } */
 </style>
 <div id="fake-modal-bg-div"></div>
 <div id="fake-modal-div">
@@ -406,7 +411,6 @@ html , body , #sidebar-div , .well , .trackBox , .track { background-color: #000
     <input id="latency-input" type="number" class="btn btn-mini" value="0" />
   </div>
 </div>
-
 
         <script src="js/bootstrap-button.js"></script>
         <script src="js/bootstrap.min.js"></script>

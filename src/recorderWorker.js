@@ -15,7 +15,7 @@ this.onmessage = function(e) {
             exportWAV(e.data.type);
             break;
         case 'setLatency':
-            setLatency(e.data.latencyDelta);
+            setLatency(e.data.latency);
             break;
         case 'getBuffer':
             getBuffer();
@@ -46,7 +46,11 @@ function exportWAV(type) {
     this.postMessage(audioBlob);
 }
 
-var Latency = 0 ; function setLatency(latencyDelta) { Latency += latencyDelta ; }
+
+var Latency = 0 ; function setLatency(latency) { Latency += latency ;
+console.info("recordWorker::setLatency() set latency:" + latency + " to:=" + Latency);
+}
+
 
 function getBuffer() {
     var buffers = [];

@@ -1,3 +1,18 @@
+
+const LATENCY_OUT_TRACK_N = 42;
+const LATENCY_IN_TRACK_N = 43;
+const LATENCY_PING_DICT = { 'id':        LATENCY_OUT_TRACK_N            ,
+                            'url':       'src/data/samples/latency.wav' ,
+                            'track':     LATENCY_OUT_TRACK_N            ,
+                            'startTime': [ 0 ]                          ,
+//                             'duration':  1.122244954109192              } ;
+                            'duration':  120.05875                      } ;
+const FAKE_MODAL_BG_DIV_ID = 'fake-modal-bg-div';
+const FAKE_MODAL_DIV_ID = 'fake-modal-div';
+
+var FakeModalBgDiv;
+var FakeModalDiv;
+
 var ac = new (window.AudioContext || window.webkitAudioContext);
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia ||
                          navigator.mozGetUserMedia;
@@ -54,6 +69,11 @@ if (sampleTitle == 'latency.wav') console.info("createClip() song.id" +  song.id
         var sampleUrl = song.url.split("/");
         var sampleTitle = sampleUrl[sampleUrl.length - 1];
         var obj;
+
+
+if (sampleTitle == 'latency.wav') console.info("createClipElements() in song.id=" +  song.id + " song.duration=" +  song.duration) ;
+
+
         $("#libraryList").append("<li id=librarySample" + song.id + " class=\"librarySample\" data-id=" + song.id + " data-url=" + song.url + " data-duration=" + song.duration + "><a href=\"#\">" + sampleTitle + "</a></li>");
         $("#librarySample" + song.id).draggable({
             revert: true,
@@ -150,10 +170,8 @@ if (sampleTitle == 'latency.wav') console.info("createClip() out") ;
     xhr.send();
 
 
-createTrack(LATENCY_IN_TRACK_N);
-var latency_ping_dict = {"id":"42","url":"src/data/samples/latency.wav","track":"42","startTime":[0],"duration":"1.122244954109192"} ;
-
-LatencyClip = createWavesurfer(latency_ping_dict) ;
+createNodes(LATENCY_OUT_TRACK_N); createTrack(LATENCY_OUT_TRACK_N);
+LatencyClip = createWavesurfer(LATENCY_PING_DICT) ;
 if (LatencyClip != undefined)
 {
   load(LatencyClip.bufferURL, LatencyClip.id);
@@ -266,7 +284,7 @@ $('body').bind('mute-event', function(e, trackNumber) {
     muteTrack(trackNumber);
 });
 $('body').bind('solo-event', function(e, trackNumber) {
-    solo(trackNumber);
+  solo(trackNumber);
 });
 $('body').bind('zoomIn-event', function(e) {
     timelineZoomIn();
@@ -682,23 +700,25 @@ $(document).ready(function() {
     });
 
 
-var LATENCY_IN_TRACK_N = 42;
-var LATENCY_OUT_TRACK_N = 43;
-createNodes(LATENCY_IN_TRACK_N);
-createNodes(LATENCY_OUT_TRACK_N);
-createTrack(LATENCY_OUT_TRACK_N);
-[ { 'track-n': LATENCY_IN_TRACK_N  , 'label': 'Input' } ,
-  { 'track-n': LATENCY_OUT_TRACK_N , 'label': 'Reference' } ].forEach(function(latencyTrackDict)
+FakeModalBgDiv = document.getElementById(FAKE_MODAL_BG_DIV_ID);
+FakeModalDiv = document.getElementById(FAKE_MODAL_DIV_ID);
+createNodes(LATENCY_IN_TRACK_N); createTrack(LATENCY_IN_TRACK_N);
+[ { 'track-n': LATENCY_OUT_TRACK_N , 'label': 'Reference' } ,
+  { 'track-n': LATENCY_IN_TRACK_N  , 'label': 'Input'     } ].forEach(function(latencyTrackDict)
 {
 var latencyTrackN = latencyTrackDict['track-n'];
 var latencyTrackLabel = latencyTrackDict['label'];
 var latencyTrack = document.getElementById("selectTrack" + latencyTrackN);
-document.getElementById('fake-modal-div').appendChild(latencyTrack);
+
+FakeModalDiv.appendChild(latencyTrack);
 document.getElementById('track' + latencyTrackN + 'title').textContent = latencyTrackLabel;
 }) ;
+$("#selectTrack" + LATENCY_OUT_TRACK_N).off('click');
+$("#selectTrack" + LATENCY_IN_TRACK_N).off('click');
 $('#latency-input').change(function() {
-console.info("#latency-input onchange=" + (this).val());
-                                        /*borked*/ activeRecorder.setLatency((this).val()) ; }) ;
+console.info("#latency-input onchange=" + $(this).val());
+console.info("#latency-input recorder=" + activeRecorder);
+                               /* TODO*/activeRecorder.setLatency($(this).val()) ; }) ;
 
 //             var source = ac.createBufferSource() ;
 //             source.connect(trackInputNodes[LatencyClip.track]) ;
@@ -709,7 +729,7 @@ console.info("#latency-input onchange=" + (this).val());
 //             source.start(ac.currentTime);
 
 
-    drawTimeline();
+//     drawTimeline();
 });
 
 
@@ -976,6 +996,18 @@ function startUserMedia(stream) {
     micStream = stream;
 }
 
+function presentLatencyModal()
+{
+    FakeModalBgDiv.style.display = FakeModalDiv.style.display = 'block';
+    $('body').trigger('solo-event', LATENCY_OUT_TRACK_N); $(this).button('toggle');
+}
+
+function dismissLatencyModal()
+{
+    FakeModalBgDiv.style.display = FakeModalDiv.style.display = 'none';
+    $('body').trigger('solo-event', LATENCY_OUT_TRACK_N); $(this).button('toggle');
+}
+
 window.onload = function init() {
     try {
         // webkit shim
@@ -987,4 +1019,7 @@ window.onload = function init() {
     }
 
 //     navigator.getUserMedia({audio: true}, startUserMedia, function(e) {});
+
+    drawTimeline();
+    presentLatencyModal();
 };

@@ -48,8 +48,8 @@
         }
 
 
-this.setLatency = function(latencyDelta) { worker.postMessage({ command:     'setLatency'  ,
-                                                                latencyDelta: latencyDelta }) }
+this.setLatency = function(latency) { worker.postMessage({ command: 'setLatency'  ,
+                                                           latency: latency       }) }
 
 
         this.getBuffer = function(cb) {
