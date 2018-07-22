@@ -60,6 +60,9 @@ var wavesurfer = (function() {
                 obj = ({bufferURL: song.url, id: song.id, startTimes: song.startTime, track: song.track});
             }
 
+            var currentStartTime = parseInt(song.startTime[sampleNumber]);
+            var trackDiv = $("#track" + song.track);
+
             createClipElements('sample', song.id, sampleNumber, currentStartTime,
                                trackDiv, song.duration, song.track);
 
@@ -138,6 +141,7 @@ var wavesurfer = (function() {
 }());
 
 
+<<<<<<< HEAD
 function createClipElements(idPrefix , clipId , sampleNumber , startTime ,
                             trackDiv , clipDuration , trackId)
 {
@@ -720,94 +724,9 @@ function createTrack(trackNumber) {
         var recordTrackNumber = $(this).attr('id').split('record')[1];
         $(this).button('toggle');
         if ($(this).hasClass('active')) {
-            //Start Recording
-            var input = ac.createMediaStreamSource(micStream);
-            //input.connect(ac.destination);
-            activeRecorder = new Recorder(input);
-            activeRecorder.record();
-            schedPlay(ac.currentTime);
+            activeRecorder = createRecorder();
         } else {
-            //Stop Recording
-            activeRecorder.stop();
-
-            var recordingDuration;
-
-            var startBar;
-            if (pauseBeat == undefined) {
-                startBar = 0;
-            } else {
-                startBar = pauseBeat;
-            }
-
-            activeRecorder.getBuffer(function(recordingBuffer) {
-                var newBuffer = ac.createBuffer(2, recordingBuffer[0].length, ac.sampleRate);
-                //var newSource = ac.createBufferSourceNode();
-                var trackDiv = $("#track" + recordTrackNumber);
-                recordingDuration = recordingBuffer[0].length / ac.sampleRate;
-
-                newBuffer.getChannelData(0).set(recordingBuffer[0]);
-                newBuffer.getChannelData(1).set(recordingBuffer[1]);
-                //newSource.buffer = newBuffer;
-
-                createClipElements('recording', recordingCount, '', startBar,
-                                   trackDiv, recordingDuration, recordTrackNumber);
-// *                var span = document.createElement('span');
-// *                span.id = "recording" + recordingCount + "Span";
-// *                var canvas = document.createElement('canvas');
-// *                canvas.className = "sample";
-// *                canvas.id = "recording" + recordingCount + "Canvas";
-// *                $("#track" + recordTrackNumber).append(span);
-// *                $("#recording" + recordingCount + "Span").append(canvas);
-// *                $("#recording" + recordingCount + "Span").width(parseFloat(recordingDuration) * ((pixelsPer4 * bpm) / 60));
-// *                $("#recording" + recordingCount + "Span").attr('data-startTime', startBar);
-// *                $("#recording" + recordingCount + "Span").css('left', "" + startBar * pixelsPer16 + "px");
-// *                $("#recording" + recordingCount + "Span").css('position', 'absolute');
-// *                $("#recording" + recordingCount + "Span").draggable({
-// *                    axis: "x",
-// *                    containment: "parent",
-// *                    grid: [pixelsPer16, 0],                //grid snaps to 16th notes
-// *                    stop: function() {
-// *                        //get rid of old entry in table
-// *                        var currentRecordingCount = parseInt($(this).attr('id').split('recording')[1]);
-// *                        var currentStartBar = $(this).attr('data-startTime');
-// *                        times[currentStartBar] = jQuery.removeFromArray(currentRecordingCount, times[currentStartBar]);
-// *                        $(this).attr('data-startTime', parseInt($(this).css('left')) / pixelsPer16);
-// *                        var newStartTime = $(this).attr('data-startTime');
-// *                        if (times[newStartTime] == null) {
-// *                            times[newStartTime] = [ {id: currentRecordingCount, track: recordTrackNumber}];
-// *                        } else {
-// *                            times[newStartTime].push({id: currentRecordingCount, track: recordTrackNumber});
-// *                        }
-// *                        console.log("Old Start Time: " + currentStartBar);
-// *                        console.log("New Start Time: " + newStartTime);
-// *                    }
-// *                });
-// *                canvas.width = parseFloat(recordingDuration) * ((pixelsPer4 * bpm) / 60);
-// *                canvas.height = 80;
-// =
-                activeRecorder.exportWAV(function(blob) {
-                    var url = URL.createObjectURL(blob);
-                    createClipWavesurfer('#08c', '#08c', url);
-// =
-// *            var wavesurfer = Object.create(WaveSurfer);
-// *            wavesurfer.init({
-// *                canvas: canvas,
-// *                waveColor: '#08c',
-// *                progressColor: '#08c',
-// *                loadingColor: 'purple',
-// *                cursorColor: 'navy',
-// *                audioContext: ac
-// *            });
-// *            wavesurfer.load(sampleURL);
-// *            globalWavesurfers.push(wavesurfer);
-// =
-                    buffers[recordingCount] = { buffer: newBuffer };
-
-                    setStartTimes(startBar, recordingCount, recordTrackNumber);
-
-                    recordingCount++;
-                });
-            });
+            destroyRecorder(activeRecorder);
         }
     });
     $("#track" + trackNumber + "title").storage({
@@ -816,7 +735,6 @@ function createTrack(trackNumber) {
     $("#track" + trackNumber).droppable({
         accept: ".librarySample",
         drop: function(event, ui) {
-// =
             var startBar = Math.floor((ui.offset.left - $(this).offset().left) / 6);
             var sampleStartTime = startBar;
             var rand = parseInt(Math.random() * 10000);
@@ -826,6 +744,7 @@ function createTrack(trackNumber) {
 
             createClipElements('sample', sampleID, rand, sampleStartTime,
                                $(this), sampleDuration, trackNumber);
+// =
 // *            var span = document.createElement('span');
 // *            span.id = "sample" + sampleID + "Span" + rand;
 // *            var canvas = document.createElement('canvas');
@@ -856,8 +775,8 @@ function createTrack(trackNumber) {
 // *                }
 // *            });
 // =
+            createWavesurfer('violet', 'purple', sampleURL);
 // =
-                createClipWavesurfer('violet', 'purple', sampleURL);
 // *            var wavesurfer = Object.create(WaveSurfer);
 // *            wavesurfer.init({
 // *                canvas: canvas,
@@ -891,6 +810,103 @@ function createNodes(trackId) {
     trackMasterGains[trackId] = {node: trackMasterGainNode, isMuted: false, isSolo: false};
     trackVolumeGains[trackId] = trackVolumeNode;
     trackInputNodes[trackId] = trackInputNode;
+}
+
+function createRecorder()
+{
+    //Start Recording
+    var input = ac.createMediaStreamSource(micStream);
+    //input.connect(ac.destination);
+    var recorder = new Recorder(input);
+    recorder.record();
+    schedPlay(ac.currentTime);
+
+    return recorder;
+}
+
+function destroyRecorder(recorder)
+{
+    //Stop Recording
+    recorder.stop();
+
+    var recordingDuration;
+
+    var startBar;
+    if (pauseBeat == undefined) {
+        startBar = 0;
+    } else {
+        startBar = pauseBeat;
+    }
+
+    recorder.getBuffer(function(recordingBuffer) {
+        var newBuffer = ac.createBuffer(2, recordingBuffer[0].length, ac.sampleRate);
+        //var newSource = ac.createBufferSourceNode();
+        var trackDiv = $("#track" + recordTrackNumber);
+        recordingDuration = recordingBuffer[0].length / ac.sampleRate;
+
+        newBuffer.getChannelData(0).set(recordingBuffer[0]);
+        newBuffer.getChannelData(1).set(recordingBuffer[1]);
+        //newSource.buffer = newBuffer;
+        createClipElements('recording', recordingCount, '', startBar,
+                            trackDiv, recordingDuration, recordTrackNumber);
+// =
+// *        var span = document.createElement('span');
+// *        span.id = "recording" + recordingCount + "Span";
+// *        var canvas = document.createElement('canvas');
+// *        canvas.className = "sample";
+// *        canvas.id = "recording" + recordingCount + "Canvas";
+// *        $("#track" + recordTrackNumber).append(span);
+// *        $("#recording" + recordingCount + "Span").append(canvas);
+// *        $("#recording" + recordingCount + "Span").width(parseFloat(recordingDuration) * ((pixelsPer4 * bpm) / 60));
+// *        $("#recording" + recordingCount + "Span").attr('data-startTime', startBar);
+// *        $("#recording" + recordingCount + "Span").css('left', "" + startBar * pixelsPer16 + "px");
+// *        $("#recording" + recordingCount + "Span").css('position', 'absolute');
+// *        $("#recording" + recordingCount + "Span").draggable({
+// *            axis: "x",
+// *            containment: "parent",
+// *            grid: [pixelsPer16, 0],                //grid snaps to 16th notes
+// *            stop: function() {
+// *                //get rid of old entry in table
+// *                var currentRecordingCount = parseInt($(this).attr('id').split('recording')[1]);
+// *                var currentStartBar = $(this).attr('data-startTime');
+// *                times[currentStartBar] = jQuery.removeFromArray(currentRecordingCount, times[currentStartBar]);
+// *                $(this).attr('data-startTime', parseInt($(this).css('left')) / pixelsPer16);
+// *                var newStartTime = $(this).attr('data-startTime');
+// *                if (times[newStartTime] == null) {
+// *                    times[newStartTime] = [ {id: currentRecordingCount, track: recordTrackNumber}];
+// *                } else {
+// *                    times[newStartTime].push({id: currentRecordingCount, track: recordTrackNumber});
+// *                }
+// *                console.log("Old Start Time: " + currentStartBar);
+// *                console.log("New Start Time: " + newStartTime);
+// *            }
+// *        });
+// *        canvas.width = parseFloat(recordingDuration) * ((pixelsPer4 * bpm) / 60);
+// *        canvas.height = 80;
+// =
+        recorder.exportWAV(function(blob) {
+            var url = URL.createObjectURL(blob);
+            createWavesurfer('#08c', '#08c', url);
+// =
+// *            var wavesurfer = Object.create(WaveSurfer);
+// *            wavesurfer.init({
+// *                canvas: canvas,
+// *                waveColor: '#08c',
+// *                progressColor: '#08c',
+// *                loadingColor: 'purple',
+// *                cursorColor: 'navy',
+// *                audioContext: ac
+// *            });
+// *            wavesurfer.load(url);
+// *            globalWavesurfers.push(wavesurfer);
+// =
+            buffers[recordingCount] = {buffer: newBuffer};
+
+            setStartTimes(startBar, recordingCount, recordTrackNumber);
+
+            recordingCount++;
+        });
+    });
 }
 
 function startUserMedia(stream) {
