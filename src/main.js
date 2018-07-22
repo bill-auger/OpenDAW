@@ -1,6 +1,7 @@
 var ac = new (window.AudioContext || window.webkitAudioContext);
-navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia
-                         var masterGainNode = ac.createGain();
+navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia ||
+                         navigator.mozGetUserMedia;
+var masterGainNode = ac.createGain();
 masterGainNode.gain.value = .8;
 masterGainNode.connect(ac.destination);
 
@@ -8,8 +9,7 @@ var micStream;
 var activeRecorder;
 var recordingCount = 1000;
 
-//array of track master gain nodes
-var trackMasterGains = [];
+var trackMasterGains = []; //array of track master gain nodes
 var trackVolumeGains = [];
 var trackInputNodes = [];
 var trackCompressors = [];
@@ -18,17 +18,14 @@ var trackFilters = [];
 var trackDelays = [];
 var trackTremolos = [];
 
-//the currently selected track (for editing effects etc.)
-var activeTrack;
+var activeTrack; //the currently selected track (for editing effects etc.)
 
-//json of effect data
-var effects;
-
-var buffers = []; //contains AudioBuffer and id# of samples in workspace
-var times = []; //contains start times of samples and their id#
-var reverbIRs = []
-                var pixelsPer16 = 6;                         //pixels per 16th note. used for grid snapping
-var pixelsPer4 = 4*pixelsPer16;                //pixels per 1/4 note        used for sample canvas size
+var effects;                      //json of effect data
+var buffers = [];                 //contains AudioBuffer and id# of samples in workspace
+var times = [];                   //contains start times of samples and their id#
+var reverbIRs = [];
+var pixelsPer16 = 6;              //pixels per 16th note used for grid snapping
+var pixelsPer4 = 4 * pixelsPer16; //pixels per 1/4 note used for sample canvas size
 var bpm = tempo;
 var secondsPer16 = 0.25 * 60 / bpm;
 
@@ -50,9 +47,9 @@ var wavesurfer = (function() {
         var startTimes = song.startTime;
         var sampleNumber = 0;
         var sampleUrl = song.url.split("/");
-        var sampleTitle = sampleUrl[sampleUrl.length-1];
+        var sampleTitle = sampleUrl[sampleUrl.length - 1];
         var obj;
-        $("#libraryList").append("<li id=librarySample" + song.id +" class=\"librarySample\" data-id="+song.id+" data-url="+song.url+" data-duration="+song.duration+"><a href=\"#\">" + sampleTitle + "</a></li>");
+        $("#libraryList").append("<li id=librarySample" + song.id + " class=\"librarySample\" data-id=" + song.id + " data-url=" + song.url + " data-duration=" + song.duration + "><a href=\"#\">" + sampleTitle + "</a></li>");
         $("#librarySample" + song.id).draggable({
             revert: true,
             helper: "clone",
@@ -68,14 +65,14 @@ var wavesurfer = (function() {
             var canvas = document.createElement('canvas');
             canvas.className = "sample";
             canvas.id = "sample" + song.id + "Canvas" + sampleNumber;
-            $("#track"+song.track).append(span);
+            $("#track" + song.track).append(span);
             $("#sample" + song.id + "Span" + sampleNumber).append(canvas);
-            $("#sample" + song.id + "Span" + sampleNumber).width(parseFloat(song.duration) * ((pixelsPer4*bpm)/60));
-            canvas.width = parseFloat(song.duration) * ((pixelsPer4*bpm)/60);
+            $("#sample" + song.id + "Span" + sampleNumber).width(parseFloat(song.duration) * ((pixelsPer4 * bpm) / 60));
+            canvas.width = parseFloat(song.duration) * ((pixelsPer4 * bpm) / 60);
             canvas.height = 80;
-            $("#sample" + song.id + "Span" + sampleNumber).attr('data-startTime',song.startTime[sampleNumber]);
-            $("#sample" + song.id + "Span" + sampleNumber).css('left',"" + parseInt(currentStartTime*pixelsPer16) + "px");
-            $("#sample" + song.id + "Span" + sampleNumber).css('position','absolute');
+            $("#sample" + song.id + "Span" + sampleNumber).attr('data-startTime', song.startTime[sampleNumber]);
+            $("#sample" + song.id + "Span" + sampleNumber).css('left', "" + parseInt(currentStartTime * pixelsPer16) + "px");
+            $("#sample" + song.id + "Span" + sampleNumber).css('position', 'absolute');
             $("#sample" + song.id + "Span" + sampleNumber).draggable({
                 axis: "x",
                 containment: "parent",
@@ -84,7 +81,7 @@ var wavesurfer = (function() {
                     //get rid of old entry in table
                     var currentStartBar = $(this).attr('data-startTime');
                     times[currentStartBar] = jQuery.removeFromArray(song.id, times[currentStartBar]);
-                    $(this).attr('data-startTime',parseInt($(this).css('left'))/pixelsPer16);
+                    $(this).attr('data-startTime', parseInt($(this).css('left')) / pixelsPer16);
                     var newStartTime = $(this).attr('data-startTime');
                     if (times[newStartTime] == null) {
                         times[newStartTime] = [ {id: song.id, track: song.track}];
@@ -122,10 +119,10 @@ var wavesurfer = (function() {
         globalNumberOfTracks = numberOfTracks;
         createNodes(numberOfTracks);
 
-        for (var i=0; i<numberOfTracks; i++) {
-            var currentTrackNumber = i+1;
+        for (var i = 0; i < numberOfTracks; i++) {
+            var currentTrackNumber = i + 1;
             createTrack(currentTrackNumber);
-            $.each(effects[i],function() {
+            $.each(effects[i], function() {
                 if (this.type == "Compressor") {
                     var trackCompressor = ac.createDynamicsCompressor();
                     var inputNode = trackInputNodes[currentTrackNumber];
@@ -184,13 +181,8 @@ function load(src, id) {
     xhr.open('GET', src, true);
     xhr.responseType = 'arraybuffer';
     xhr.addEventListener('load', function(e) {
-        ac.decodeAudioData(
-            e.target.response,
-        function(buffer) {
-            buffers[id] = {buffer: buffer};
-        },
-        Error
-        );
+        function loadAudioBuffer(buffer) { buffers[id] = {buffer: buffer}; }
+        ac.decodeAudioData(e.target.response, loadAudioBuffer, Error);
     }, false);
     xhr.send();
 };
@@ -200,8 +192,6 @@ initSched({
     bufferArray: buffers,
     audioContext: ac
 });
-
-
 $('body').bind('playPause-event', function(e) {
     schedPlay(ac.currentTime);
 });
@@ -241,7 +231,7 @@ $(document).ready(function() {
     $("#trackEffects").droppable({
         accept: ".effectDrag",
         drop: function(event, ui) {
-            $("#"+ui.draggable[0].textContent).removeClass('hidden');
+            $("#" + ui.draggable[0].textContent).removeClass('hidden');
             if (ui.draggable[0].textContent == "Reverb") {
                 $("#reverbIrSelectKnob").val(0).trigger('change');
                 $("#reverbWetDryKnob").val(50).trigger('change');
@@ -267,7 +257,7 @@ $(document).ready(function() {
                 }
 
                 trackReverbs[activeTrack] = trackReverb;
-                effects[activeTrack-1].push({
+                effects[activeTrack - 1].push({
                     type: "Reverb",
                     ir:  "0",
                     wetDry: "50"
@@ -300,7 +290,7 @@ $(document).ready(function() {
                 }
 
                 trackFilters[activeTrack] = trackFilter;
-                effects[activeTrack-1].push({
+                effects[activeTrack - 1].push({
                     type: "Filter",
                     cutoff: "30",
                     q: "1",
@@ -335,7 +325,7 @@ $(document).ready(function() {
                 }
 
                 trackCompressors[activeTrack] = trackCompressor;
-                effects[activeTrack-1].push({
+                effects[activeTrack - 1].push({
                     type: "Compressor",
                     threshold: "-24",
                     ratio: "12",
@@ -372,7 +362,7 @@ $(document).ready(function() {
                 }
 
                 trackTremolos[activeTrack] = trackTremolo;
-                effects[activeTrack-1].push({
+                effects[activeTrack - 1].push({
                     type: "Tremolo",
                     rate: "1",
                     depth: "10"
@@ -407,7 +397,7 @@ $(document).ready(function() {
                 trackDelay[1].connect(volumeNode);
 
                 trackDelays[activeTrack] = trackDelay;
-                effects[activeTrack-1].push({
+                effects[activeTrack - 1].push({
                     type: "Delay",
                     time: "1",
                     feedback: "20",
@@ -419,8 +409,8 @@ $(document).ready(function() {
 
     $("#compressorThresholdKnob").knob({
         change : function(v) {
-            setCompressorThresholdValue(activeTrack,v);
-            $.each(effects[activeTrack-1], function() {
+            setCompressorThresholdValue(activeTrack, v);
+            $.each(effects[activeTrack - 1], function() {
                 if (this.type == "Compressor") {
                     this.threshold = v;
                 }
@@ -429,8 +419,8 @@ $(document).ready(function() {
     });
     $("#compressorRatioKnob").knob({
         change : function(v) {
-            setCompressorRatioValue(activeTrack,v);
-            $.each(effects[activeTrack-1], function() {
+            setCompressorRatioValue(activeTrack, v);
+            $.each(effects[activeTrack - 1], function() {
                 if (this.type == "Compressor") {
                     this.ratio = v;
                 }
@@ -439,10 +429,10 @@ $(document).ready(function() {
     });
     $("#compressorAttackKnob").knob({
         change : function(v) {
-            setCompressorAttackValue(activeTrack,v);
-            $.each(effects[activeTrack-1], function() {
+            setCompressorAttackValue(activeTrack, v);
+            $.each(effects[activeTrack - 1], function() {
                 if (this.type == "Compressor") {
-                    this.attack = v/1000;
+                    this.attack = v / 1000;
                 }
             });
         }
@@ -450,8 +440,8 @@ $(document).ready(function() {
 
     $("#filterCutoffKnob").knob({
         change : function(v) {
-            setFilterCutoffValue(activeTrack,v);
-            $.each(effects[activeTrack-1], function() {
+            setFilterCutoffValue(activeTrack, v);
+            $.each(effects[activeTrack - 1], function() {
                 if (this.type == "Filter") {
                     this.cutoff = v;
                 }
@@ -460,8 +450,8 @@ $(document).ready(function() {
     });
     $("#filterQKnob").knob({
         change : function(v) {
-            setFilterQValue(activeTrack,v);
-            $.each(effects[activeTrack-1], function() {
+            setFilterQValue(activeTrack, v);
+            $.each(effects[activeTrack - 1], function() {
                 if (this.type == "Filter") {
                     this.q = v;
                 }
@@ -470,8 +460,8 @@ $(document).ready(function() {
     });
     $("#filterTypeKnob").knob({
         change : function(v) {
-            setFilterType(activeTrack,v);
-            $.each(effects[activeTrack-1], function() {
+            setFilterType(activeTrack, v);
+            $.each(effects[activeTrack - 1], function() {
                 if (this.type == "Filter") {
                     this.filterType = v;
                 }
@@ -481,8 +471,8 @@ $(document).ready(function() {
 
     $("#reverbWetDryKnob").knob({
         change : function(v) {
-            setReverbWetDryValue(activeTrack,v);
-            $.each(effects[activeTrack-1], function() {
+            setReverbWetDryValue(activeTrack, v);
+            $.each(effects[activeTrack - 1], function() {
                 if (this.type == "Reverb") {
                     this.wetDry = v;
                 }
@@ -491,8 +481,8 @@ $(document).ready(function() {
     });
     $("#reverbIrSelectKnob").knob({
         change : function(v) {
-            setReverbIr(activeTrack,v);
-            $.each(effects[activeTrack-1], function() {
+            setReverbIr(activeTrack, v);
+            $.each(effects[activeTrack - 1], function() {
                 if (this.type == "Reverb") {
                     this.ir = v;
                 }
@@ -504,8 +494,8 @@ $(document).ready(function() {
 
     $("#delayTimeKnob").knob({
         change : function(v) {
-            setDelayTimeValue(activeTrack,v);
-            $.each(effects[activeTrack-1], function() {
+            setDelayTimeValue(activeTrack, v);
+            $.each(effects[activeTrack - 1], function() {
                 if (this.type == "Delay") {
                     this.time = v;
                 }
@@ -514,8 +504,8 @@ $(document).ready(function() {
     });
     $("#delayFeedbackKnob").knob({
         change : function(v) {
-            setDelayFeedbackValue(activeTrack,v);
-            $.each(effects[activeTrack-1], function() {
+            setDelayFeedbackValue(activeTrack, v);
+            $.each(effects[activeTrack - 1], function() {
                 if (this.type == "Delay") {
                     this.feedback = v;
                 }
@@ -524,8 +514,8 @@ $(document).ready(function() {
     });
     $("#delayWetDryKnob").knob({
         change : function(v) {
-            setDelayWetDryValue(activeTrack,v);
-            $.each(effects[activeTrack-1], function() {
+            setDelayWetDryValue(activeTrack, v);
+            $.each(effects[activeTrack - 1], function() {
                 if (this.type == "Delay") {
                     this.wetDry = v;
                 }
@@ -535,8 +525,8 @@ $(document).ready(function() {
 
     $("#tremoloRateKnob").knob({
         change : function(v) {
-            setTremoloRateValue(activeTrack,v);
-            $.each(effects[activeTrack-1], function() {
+            setTremoloRateValue(activeTrack, v);
+            $.each(effects[activeTrack - 1], function() {
                 if (this.type == "Tremolo") {
                     this.rate = v;
                 }
@@ -545,8 +535,8 @@ $(document).ready(function() {
     });
     $("#tremoloDepthKnob").knob({
         change : function(v) {
-            setTremoloDepthValue(activeTrack,v);
-            $.each(effects[activeTrack-1], function() {
+            setTremoloDepthValue(activeTrack, v);
+            $.each(effects[activeTrack - 1], function() {
                 if (this.type == "Tremolo") {
                     this.depth = v;
                 }
@@ -568,43 +558,43 @@ $(document).ready(function() {
     $("#zoomIn").click(function() {
         $('body').trigger('zoomIn-event');
         var WavesurferCanvases = $(".sample");
-        $.each(WavesurferCanvases,function() {
+        $.each(WavesurferCanvases, function() {
             var wavesurferCanvas = this;
             var oldWidth = wavesurferCanvas.width;
-            var newWidth = oldWidth*2;
+            var newWidth = oldWidth * 2;
             wavesurferCanvas.width = newWidth;
-            $($(wavesurferCanvas).parent()[0]).css("width",newWidth+"px");
+            $($(wavesurferCanvas).parent()[0]).css("width", newWidth + "px");
             var oldLeft = parseInt($($(wavesurferCanvas).parent()[0]).css("left"));
-            $($(wavesurferCanvas).parent()[0]).css("left",""+oldLeft*2+"px");
+            $($(wavesurferCanvas).parent()[0]).css("left", "" + oldLeft * 2 + "px");
         });
         $.each(globalWavesurfers, function() {
             var wavesurfer = this;
             wavesurfer.drawer.clear();
-            wavesurfer.drawer.width  = wavesurfer.drawer.width*2;
+            wavesurfer.drawer.width  = wavesurfer.drawer.width * 2;
             wavesurfer.drawer.drawBuffer(wavesurfer.backend.currentBuffer);
         });
     });
     $("#zoomOut").click(function() {
         $('body').trigger('zoomOut-event');
         var WavesurferCanvases = $(".sample");
-        $.each(WavesurferCanvases,function() {
+        $.each(WavesurferCanvases, function() {
             var wavesurferCanvas = this;
             var oldWidth = wavesurferCanvas.width;
-            wavesurferCanvas.width = oldWidth/2 + 1;
-            $($(wavesurferCanvas).parent()[0]).css("width",oldWidth/2 + 1+"px");
+            wavesurferCanvas.width = oldWidth / 2 + 1;
+            $($(wavesurferCanvas).parent()[0]).css("width", oldWidth / 2 + 1 + "px");
             var oldLeft = parseInt($($(wavesurferCanvas).parent()[0]).css("left"));
-            $($(wavesurferCanvas).parent()[0]).css("left",""+oldLeft/2+"px");
+            $($(wavesurferCanvas).parent()[0]).css("left", "" + oldLeft / 2 + "px");
         });
         $.each(globalWavesurfers, function() {
             var wavesurfer = this;
             wavesurfer.drawer.clear();
-            wavesurfer.drawer.width = wavesurfer.drawer.width/2 + 1;
+            wavesurfer.drawer.width = wavesurfer.drawer.width / 2 + 1;
             wavesurfer.drawer.drawBuffer(wavesurfer.backend.currentBuffer);
         });
     });
     $("#trackEffectsClose").click(function() {
-        $("#trackEffects").css("display","none");
-        $("#masterControl").css("display","none");
+        $("#trackEffects").css("display", "none");
+        $("#masterControl").css("display", "none");
     });
 
 
@@ -620,12 +610,12 @@ $(document).ready(function() {
     });
 
     $("#addTrackButton").click(function() {
-        var newTrackNumber = globalNumberOfTracks+1;
+        var newTrackNumber = globalNumberOfTracks + 1;
         globalNumberOfTracks++;
-        if (globalNumberOfTracks>4) {
+        if (globalNumberOfTracks > 4) {
             var currentSideBarHeight = parseInt($(".sidebar").css('height'));
-            currentSideBarHeight+=90;
-            $(".sidebar").css('height',""+currentSideBarHeight+"px");
+            currentSideBarHeight += 90;
+            $(".sidebar").css('height', "" + currentSideBarHeight + "px");
         }
         createTrack(newTrackNumber);
         var trackMasterGainNode = ac.createGain();
@@ -646,11 +636,11 @@ $(document).ready(function() {
 
 
 function createTrack(trackNumber) {
-    $("#tracks").append("<div class=\"row-fluid\" id=\"selectTrack"+trackNumber+"\"><div class=\"span2 trackBox\" style=\"height: 84px;\"><p style=\"margin: 0 0 0 0;\" id=\"track"+trackNumber+"title\">Track"+trackNumber+"</p><div style=\"margin: 5px 0 5px 0;\" id=\"volumeSlider"+trackNumber+"\"></div><div class=\"btn-toolbar\" style=\"margin-top: 0px;\"><div class=\"btn-group\"><button type=\"button\" class=\"btn btn-mini\" id = \"solo"+trackNumber+"\"><i class=\"icon-headphones\"></i></button><button type=\"button\" class=\"btn btn-mini\" id = \"mute"+trackNumber+"\"><i class=\"icon-volume-off\"></i></button></div><div class=\"btn-group\"><button type=\"button\" class=\"btn btn-mini\" data-toggle=\"button\" id = \"record"+trackNumber+"\"><i class=\"icon-plus-sign\"></i></button></div></div></div><div id=\"track"+trackNumber+"\" class=\"span10 track\"></div></div>");
-    if (effects[trackNumber-1] == null) {
-        effects[trackNumber-1] = [];
+    $("#tracks").append("<div class=\"row-fluid\" id=\"selectTrack" + trackNumber + "\"><div class=\"span2 trackBox\" style=\"height: 84px;\"><p style=\"margin: 0 0 0 0;\" id=\"track" + trackNumber + "title\">Track" + trackNumber + "</p><div style=\"margin: 5px 0 5px 0;\" id=\"volumeSlider" + trackNumber + "\"></div><div class=\"btn-toolbar\" style=\"margin-top: 0px;\"><div class=\"btn-group\"><button type=\"button\" class=\"btn btn-mini\" id= \"solo" + trackNumber + "\"><i class=\"icon-headphones\"></i></button><button type=\"button\" class=\"btn btn-mini\" id= \"mute" + trackNumber + "\"><i class=\"icon-volume-off\"></i></button></div><div class=\"btn-group\"><button type=\"button\" class=\"btn btn-mini\" data-toggle=\"button\" id= \"record" + trackNumber + "\"><i class=\"icon-plus-sign\"></i></button></div></div></div><div id=\"track" + trackNumber + "\" class=\"span10 track\"></div></div>");
+    if (effects[trackNumber - 1] == null) {
+        effects[trackNumber - 1] = [];
     }
-    $("#volumeSlider"+trackNumber).slider({
+    $("#volumeSlider" + trackNumber).slider({
         value: 80,
         orientation: "horizontal",
         range: "min",
@@ -662,18 +652,18 @@ function createTrack(trackNumber) {
             setTrackVolume(muteTrackNumber, ui.value);
         }
     });
-    $("#selectTrack"+trackNumber).click(function() {
+    $("#selectTrack" + trackNumber).click(function() {
         var printTrackNumber = $(this).attr('id').split('selectTrack')[1];
         activeTrack = printTrackNumber;
         //compensation for off by one (track1 = effects[0])
         $(".effect").addClass("hidden");
-        $.each(effects[activeTrack-1], function() {
+        $.each(effects[activeTrack - 1], function() {
             var currentEffect = this;
-            $("#"+currentEffect.type).removeClass("hidden");
+            $("#" + currentEffect.type).removeClass("hidden");
             if (currentEffect.type == "Compressor") {
                 $("#compressorThresholdKnob").val(currentEffect.threshold).trigger('change');
                 $("#compressorRatioKnob").val(currentEffect.ratio).trigger('change');
-                $("#compressorAttackKnob").val(currentEffect.attack*1000).trigger('change');
+                $("#compressorAttackKnob").val(currentEffect.attack * 1000).trigger('change');
             }
             if (currentEffect.type == "Filter") {
                 $("#filterCutoffKnob").val(currentEffect.cutoff).trigger('change');
@@ -695,22 +685,22 @@ function createTrack(trackNumber) {
                 $("#tremeloDepthKnob").val(currentEffect.depth).trigger('change');
             }
         });
-        Object.keys(effects[activeTrack-1]);
-        $("#trackEffectsHeader").html("Track "+printTrackNumber);
-        $("#trackEffects").css("display","block");
-        $("#masterControl").css("display","block");
+        Object.keys(effects[activeTrack - 1]);
+        $("#trackEffectsHeader").html("Track " + printTrackNumber);
+        $("#trackEffects").css("display", "block");
+        $("#masterControl").css("display", "block");
     });
-    $("#mute"+trackNumber).click(function() {
+    $("#mute" + trackNumber).click(function() {
         $(this).button('toggle');
         var muteTrackNumber = $(this).attr('id').split('mute')[1];
         $('body').trigger('mute-event', muteTrackNumber);
     });
-    $("#solo"+trackNumber).click(function() {
+    $("#solo" + trackNumber).click(function() {
         $(this).button('toggle');
         var soloTrackNumber = $(this).attr('id').split('solo')[1];
         $('body').trigger('solo-event', soloTrackNumber);
     });
-    $("#record"+trackNumber).click(function() {
+    $("#record" + trackNumber).click(function() {
         var recordTrackNumber = $(this).attr('id').split('record')[1];
         $(this).button('toggle');
         if ($(this).hasClass('active')) {
@@ -727,14 +717,14 @@ function createTrack(trackNumber) {
             var recordingDuration;
 
             var startBar;
-            if (pauseBeat==undefined) {
+            if (pauseBeat == undefined) {
                 startBar = 0;
             } else {
                 startBar = pauseBeat;
             }
 
             activeRecorder.getBuffer(function(recordingBuffer) {
-                recordingDuration = recordingBuffer[0].length/ac.sampleRate;
+                recordingDuration = recordingBuffer[0].length / ac.sampleRate;
 
                 var newBuffer = ac.createBuffer(2, recordingBuffer[0].length, ac.sampleRate);
                 //var newSource = ac.createBufferSourceNode();
@@ -747,12 +737,12 @@ function createTrack(trackNumber) {
                 var canvas = document.createElement('canvas');
                 canvas.className = "sample";
                 canvas.id = "recording" + recordingCount + "Canvas";
-                $("#track"+recordTrackNumber).append(span);
+                $("#track" + recordTrackNumber).append(span);
                 $("#recording" + recordingCount + "Span").append(canvas);
-                $("#recording" + recordingCount + "Span").width(parseFloat(recordingDuration) * ((pixelsPer4*bpm)/60));
-                $("#recording" + recordingCount + "Span").attr('data-startTime',startBar);
-                $("#recording" + recordingCount + "Span").css('left',"" + startBar*pixelsPer16 + "px");
-                $("#recording" + recordingCount + "Span").css('position','absolute');
+                $("#recording" + recordingCount + "Span").width(parseFloat(recordingDuration) * ((pixelsPer4 * bpm) / 60));
+                $("#recording" + recordingCount + "Span").attr('data-startTime', startBar);
+                $("#recording" + recordingCount + "Span").css('left', "" + startBar * pixelsPer16 + "px");
+                $("#recording" + recordingCount + "Span").css('position', 'absolute');
                 $("#recording" + recordingCount + "Span").draggable({
                     axis: "x",
                     containment: "parent",
@@ -762,18 +752,18 @@ function createTrack(trackNumber) {
                         var currentRecordingCount = parseInt($(this).attr('id').split('recording')[1]);
                         var currentStartBar = $(this).attr('data-startTime');
                         times[currentStartBar] = jQuery.removeFromArray(currentRecordingCount, times[currentStartBar]);
-                        $(this).attr('data-startTime',parseInt($(this).css('left'))/pixelsPer16);
+                        $(this).attr('data-startTime', parseInt($(this).css('left')) / pixelsPer16);
                         var newStartTime = $(this).attr('data-startTime');
                         if (times[newStartTime] == null) {
                             times[newStartTime] = [ {id: currentRecordingCount, track: recordTrackNumber}];
                         } else {
                             times[newStartTime].push({id: currentRecordingCount, track: recordTrackNumber});
                         }
-                        console.log("Old Start Time: "+ currentStartBar);
-                        console.log("New Start Time: "+ newStartTime);
+                        console.log("Old Start Time: " + currentStartBar);
+                        console.log("New Start Time: " + newStartTime);
                     }
                 });
-                canvas.width = parseFloat(recordingDuration) * ((pixelsPer4*bpm)/60);
+                canvas.width = parseFloat(recordingDuration) * ((pixelsPer4 * bpm) / 60);
                 canvas.height = 80;
 
                 activeRecorder.exportWAV(function(blob) {
@@ -801,13 +791,13 @@ function createTrack(trackNumber) {
             });
         }
     });
-    $("#track"+trackNumber+"title").storage({
-        storageKey : 'track'+trackNumber
+    $("#track" + trackNumber + "title").storage({
+        storageKey : 'track' + trackNumber
     });
-    $("#track"+trackNumber).droppable({
+    $("#track" + trackNumber).droppable({
         accept: ".librarySample",
         drop: function(event, ui) {
-            var startBar = Math.floor((ui.offset.left-$(this).offset().left)/6);
+            var startBar = Math.floor((ui.offset.left - $(this).offset().left) / 6);
             var sampleStartTime = startBar;
             var rand = parseInt(Math.random() * 10000);
             var span = document.createElement('span');
@@ -820,12 +810,12 @@ function createTrack(trackNumber) {
             canvas.id = "sample" + sampleID + "Canvas" + rand;
             $(this).append(span);
             $("#sample" + sampleID + "Span" + rand).append(canvas);
-            $("#sample" + sampleID + "Span" + rand).width(parseFloat(sampleDuration) * ((pixelsPer4*bpm)/60));
-            canvas.width = parseFloat(sampleDuration) * ((pixelsPer4*bpm)/60);
+            $("#sample" + sampleID + "Span" + rand).width(parseFloat(sampleDuration) * ((pixelsPer4 * bpm) / 60));
+            canvas.width = parseFloat(sampleDuration) * ((pixelsPer4 * bpm) / 60);
             canvas.height = 80;
-            $("#sample" + sampleID + "Span" + rand).attr('data-startTime',startBar);
-            $("#sample" + sampleID + "Span" + rand).css('left',"" + startBar*pixelsPer16 + "px");
-            $("#sample" + sampleID + "Span" + rand).css('position','absolute');
+            $("#sample" + sampleID + "Span" + rand).attr('data-startTime', startBar);
+            $("#sample" + sampleID + "Span" + rand).css('left', "" + startBar * pixelsPer16 + "px");
+            $("#sample" + sampleID + "Span" + rand).css('position', 'absolute');
             $("#sample" + sampleID + "Span" + rand).draggable({
                 axis: "x",
                 containment: "parent",
@@ -833,7 +823,7 @@ function createTrack(trackNumber) {
                 stop: function() {
                     var currentStartBar = $(this).attr('data-startTime');
                     times[currentStartBar] = jQuery.removeFromArray(sampleID, times[currentStartBar]);
-                    $(this).attr('data-startTime',parseInt($(this).css('left'))/pixelsPer16);
+                    $(this).attr('data-startTime', parseInt($(this).css('left')) / pixelsPer16);
                     var newStartTime = $(this).attr('data-startTime');
                     if (times[newStartTime] == null) {
                         times[newStartTime] = [ {id: sampleID, track: trackNumber}];
@@ -854,7 +844,7 @@ function createTrack(trackNumber) {
             });
             wavesurfer.load(sampleURL);
             globalWavesurfers.push(wavesurfer);
-            if (buffers[sampleID]==undefined) {
+            if (buffers[sampleID] == undefined) {
                 load(sampleURL, sampleID);
             }
             if (times[sampleStartTime] == null) {

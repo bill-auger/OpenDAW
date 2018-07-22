@@ -59,6 +59,7 @@ function clear() {
 function mergeBuffers(recBuffers, recLength) {
     var result = new Float32Array(recLength);
     var offset = 0;
+
     for (var i = 0; i < recBuffers.length; i++) {
         result.set(recBuffers[i], offset);
         offset += recBuffers[i].length;
@@ -84,7 +85,7 @@ function interleave(inputL, inputR) {
 }
 
 function floatTo16BitPCM(output, offset, input) {
-    for (var i = 0; i < input.length; i++, offset+=2) {
+    for (var i = 0; i < input.length; i++, offset += 2) {
         var s = Math.max(-1, Math.min(1, input[i]));
         output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
     }

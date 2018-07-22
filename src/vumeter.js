@@ -9,11 +9,11 @@ var ctx = $("#VUmeterCanvas").get()[0].getContext("2d");
 // create a gradient for the fill. Note the strange
 // offset, since the gradient is calculated based on
 // the canvas, not the specific element we draw
-var gradient = ctx.createLinearGradient(0,0,0,80);
-gradient.addColorStop(1,'#000000');
-gradient.addColorStop(0.75,'#ff0000');
-gradient.addColorStop(0.25,'#ffff00');
-gradient.addColorStop(0,'#ffffff');
+var gradient = ctx.createLinearGradient(0, 0, 0, 80);
+gradient.addColorStop(1, '#000000');
+gradient.addColorStop(0.75, '#ff0000');
+gradient.addColorStop(0.25, '#ffff00');
+gradient.addColorStop(0, '#ffffff');
 
 
 setupAudioNodes();
@@ -43,8 +43,8 @@ function setupAudioNodes() {
 
     // connect one of the outputs from the splitter to
     // the analyser
-    splitter.connect(analyser,0,0);
-    splitter.connect(analyser2,1,0);
+    splitter.connect(analyser, 0, 0);
+    splitter.connect(analyser2, 1, 0);
 
     // connect the splitter to the javascriptnode
     // we use the javascript node to draw at a
@@ -72,11 +72,11 @@ javascriptNode.onaudioprocess = function() {
     ctx.clearRect(0, 0, 30, 80);
 
     // set the fill style
-    ctx.fillStyle=gradient;
+    ctx.fillStyle = gradient;
 
     // create the meters
-    ctx.fillRect(0,80-average,10,80);
-    ctx.fillRect(15,80-average2,10,80);
+    ctx.fillRect(0, 80 - average, 10, 80);
+    ctx.fillRect(15, 80 - average2, 10, 80);
 }
 
 function getAverageVolume(array) {

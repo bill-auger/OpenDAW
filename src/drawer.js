@@ -80,7 +80,7 @@ WaveSurfer.Drawer = {
     redraw: function() {
         var my = this;
         this.clear();
-        this.roundRectangle(0,0,this.width, this.height, this.params.radius);
+        this.roundRectangle(0, 0, this.width, this.height, this.params.radius);
         // Draw WebAudio buffer peaks.
         if (this.peaks) {
             this.peaks.forEach(function(peak, index) {
@@ -107,7 +107,7 @@ WaveSurfer.Drawer = {
         var w = 1;
 
         //subtract radius from height to reduce vertical range
-        var h = Math.round(value * ((this.height-this.params.radius) / max));
+        var h = Math.round(value * ((this.height - this.params.radius) / max));
 
 
         var x = index * w;

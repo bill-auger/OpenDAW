@@ -10,9 +10,9 @@ function logslider(position) {
     var maxv = Math.log(20000);
 
     // calculate adjustment factor
-    var scale = (maxv-minv) / (maxp-minp);
+    var scale = (maxv - minv) / (maxp - minp);
 
-    return Math.exp(minv + scale*(position-minp));
+    return Math.exp(minv + scale * (position - minp));
 }
 
 function muteTrack(trackNumber) {
@@ -31,7 +31,7 @@ function solo(trackNumber) {
     if (!thisNode.isSolo) {
         thisNode.isSolo = true;
 
-        for (var i=1; i <= globalNumberOfTracks; i++) {
+        for (var i = 1; i <= globalNumberOfTracks; i++) {
             var node = trackMasterGains[i];
 
             if (i != trackNumber) {
@@ -44,7 +44,7 @@ function solo(trackNumber) {
     } else if (thisNode.isSolo) {
         thisNode.isSolo = false;
 
-        for (var i=1; i <= globalNumberOfTracks; i++) {
+        for (var i = 1; i <= globalNumberOfTracks; i++) {
             var node = trackMasterGains[i];
 
             if (i != trackNumber) {
@@ -60,42 +60,42 @@ function solo(trackNumber) {
 
 function setMasterVolume(newValue) {
     var node = masterGainNode;
-    node.gain.value = (newValue/100)* (newValue/100);
+    node.gain.value = (newValue / 100) * (newValue / 100);
 }
 
-function setTrackVolume(trackNumber,newValue) {
+function setTrackVolume(trackNumber, newValue) {
     var node = trackVolumeGains[trackNumber];
-    node.gain.value = (newValue/100)* (newValue/100);
+    node.gain.value = (newValue / 100) * (newValue / 100);
 }
 
-function setCompressorThresholdValue(trackNumber,threshold) {
+function setCompressorThresholdValue(trackNumber, threshold) {
     var node = trackCompressors[trackNumber];
     node.threshold.value = threshold;
 }
 
-function setCompressorRatioValue(trackNumber,ratio) {
+function setCompressorRatioValue(trackNumber, ratio) {
     var node = trackCompressors[trackNumber];
     node.ratio.value = ratio;
 }
 
-function setCompressorAttackValue(trackNumber,attack) {
+function setCompressorAttackValue(trackNumber, attack) {
     var node = trackCompressors[trackNumber];
-    node.attack.value = attack/1000;
+    node.attack.value = attack / 1000;
 }
 
-function setFilterCutoffValue(trackNumber,freq) {
+function setFilterCutoffValue(trackNumber, freq) {
     var node = trackFilters[trackNumber];
     node.frequency.value = logslider(freq);
 }
 
-function setFilterQValue(trackNumber,Q) {
+function setFilterQValue(trackNumber, Q) {
     var node = trackFilters[trackNumber];
     node.Q.value = Q;
 }
 
 function setReverbWetDryValue(trackNumber, v) {
-    var wet = v/100;
-    var dry = 1-wet;
+    var wet = v / 100;
+    var dry = 1 - wet;
     //set wetGain node gain
     trackReverbs[trackNumber][4].gain.value = wet;
 
@@ -115,8 +115,8 @@ function setReverbIr(trackNumber, v) {
 }
 
 function setDelayWetDryValue(trackNumber, v) {
-    var wet = v/100;
-    var dry = 1-wet;
+    var wet = v / 100;
+    var dry = 1 - wet;
 
     //set wet gain node
     trackDelays[trackNumber][3].gain.value = wet;
@@ -126,14 +126,14 @@ function setDelayWetDryValue(trackNumber, v) {
 }
 
 function setDelayTimeValue(trackNumber, v) {
-    var time = v*secondsPer16;
+    var time = v * secondsPer16;
 
     //access delay node
-    trackDelays[trackNumber][4].delayTime.value =time;
+    trackDelays[trackNumber][4].delayTime.value = time;
 }
 
 function setDelayFeedbackValue(trackNumber, v) {
-    v = v/100;
+    v = v / 100;
     if (v >= 1.0) {
         v = 0.99
     }
@@ -165,12 +165,12 @@ function createTrackReverb() {
     wetGain.gain.value = 0.5;
     dryGain.gain.value = 0.5;
 
-    reverbNetwork[0]=reverbIn;
-    reverbNetwork[1]=reverbOut;
-    reverbNetwork[2]=conv1;
-    reverbNetwork[3]=rev1Gain;
-    reverbNetwork[4]=wetGain;
-    reverbNetwork[5]=dryGain;
+    reverbNetwork[0] = reverbIn;
+    reverbNetwork[1] = reverbOut;
+    reverbNetwork[2] = conv1;
+    reverbNetwork[3] = rev1Gain;
+    reverbNetwork[4] = wetGain;
+    reverbNetwork[5] = dryGain;
 
     return reverbNetwork;
 }
@@ -206,7 +206,7 @@ function loadReverbIR(reverb, convNode) {
     loadReverbIR(ir, trackReverbs[trackNumber][2].buffer);
 }*/
 
-function setFilterType(trackNumber,type) {
+function setFilterType(trackNumber, type) {
     var node = trackFilters[trackNumber];
     if (type == 0) {
         node.type = 0;
@@ -284,13 +284,13 @@ function setTremoloRateValue(trackNumber, v) {
 
     //access rate node
     //trackTremolos[trackNumber][3].stop();
-    trackTremolos[trackNumber][3].frequency=v;
+    trackTremolos[trackNumber][3].frequency = v;
     //trackTremolos[trackNumber][3].start();
 }
 
 function setTremoloDepthValue(trackNumber, v) {
-    v=v/200;
+    v = v / 200;
     //access lfo gain node
-    trackTremolos[trackNumber][2].gain.value=v;
+    trackTremolos[trackNumber][2].gain.value = v;
 }
 

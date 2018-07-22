@@ -38,28 +38,28 @@
     $.fn.storage = function(options) {
 
         var defaults = {
-            onStart:function(){},
-            onExit:function(){},
-            beforeSave:function(){},
-            afterSave:function(){},
-            storageKey:'storageKey',
-            revert:false,
-            store:true
+            onStart: function(){},
+            onExit: function(){},
+            beforeSave: function(){},
+            afterSave: function(){},
+            storageKey: 'storageKey',
+            revert: false,
+            store: true
         },
-        settings = $.extend({},defaults,options);
+        settings = $.extend({}, defaults, options);
 
         return this.each(function() {
             var $this = $(this),
                 $text = $this.text(),
                 origKey = "orig" + settings.storageKey;
 
-            $this.attr("data-orig-text",$text);
+            $this.attr("data-orig-text", $text);
 
             if (settings.store) {
-                localStorage.setItem(origKey,$text);
+                localStorage.setItem(origKey, $text);
             }
 
-            $this.attr('contenteditable','');
+            $this.attr('contenteditable', '');
 
             if (settings.store) {
                 if (settings.revert) {
@@ -83,7 +83,7 @@
 
                 $this.addClass("sf-focus");
 
-                settings.onStart.apply(this,[$(this),focusText]);
+                settings.onStart.apply(this, [$(this), focusText]);
 
             });
 
@@ -93,15 +93,15 @@
                 $this.removeClass("sf-focus");
                 $this.addClass("sf-blur");
 
-                settings.onExit.apply(this,[$(this),blurText]);
+                settings.onExit.apply(this, [$(this), blurText]);
 
                 if (settings.store) {
-                    settings.beforeSave.apply(this,[$(this),blurText]);
-                    localStorage.setItem(settings.storageKey,$this.text());
-                    settings.afterSave.apply(this,[$(this),blurText]);
+                    settings.beforeSave.apply(this, [$(this), blurText]);
+                    localStorage.setItem(settings.storageKey, $this.text());
+                    settings.afterSave.apply(this, [$(this), blurText]);
                 }
 
-                $this.attr("data-orig-text",$this.text());
+                $this.attr("data-orig-text", $this.text());
 
                 $this.removeClass("sf-blur");
             });
