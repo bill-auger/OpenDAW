@@ -6,7 +6,7 @@ OpenDAW is an open source online digital audio workstation (DAW) based on the
 <a href = https://dvcs.w3.org/hg/audio/raw-file/tip/webaudio/specification.html target = "blank">Web Audio API </a>. Try OpenDAW <a href = http://opendaw.azurewebsites.net target = "blank"> here </a>.
 </p>
 
-![ScreenShot](https://raw.github.com/pvererecchia/OpenDAW/master/img/opendaw.PNG)
+![ScreenShot](https://raw.github.com/pvererecchia/OpenDAW/master/img/opendaw.png)
 <br>
 <h3>Update 2: April 22, 2013</h3>
 
@@ -26,7 +26,6 @@ page layout) was built on Twitter Bootstrap and other HTML/CSS programming. A nu
 used in our design including Wavesurfer, jQuery Knob, VUMeter and jRecorder. The citations for these can be found at the end of the presentation
 document below. We also built the scheduler (the main timing component for the application) based off of a tutorial.
 </p>
-
 
 <p>
 The basic workflow of the program upon loading is as follows: the page sends out a request for the JSON file associated with the current project. The JSON
@@ -78,7 +77,6 @@ usability are to add include saving changes to workspace sessions and exporting 
 -Adam and Pietro
 </p>
 
-
 <h6>Progress since last update:</h6>
 <ul>
   <li>Read/Write .json file for adding and rearranging samples in the workspace as well as seperate projects</li>
@@ -121,8 +119,6 @@ As much as possible from the following list of features will be implemented by t
   <li>User-uploaded samples</li>
 </ul>
 
-
-
 <p>The breakdown of work will be the following:</p>
 Adam:
 <ul>
@@ -141,9 +137,7 @@ Pietro:
   <li>Global playback audio controls</li>
   <li>Filtering and equalization effects</li>
   <li>Audio file export functionality</li>
-  
 </ul>
-
 </p>
 
 <p>
