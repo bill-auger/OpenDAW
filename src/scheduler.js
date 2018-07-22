@@ -8,10 +8,10 @@ var current16thNote =0;        // What note is currently last scheduled?
 var tempo = 125;        // tempo (in beats per minute). defined in main.js
 var secondsPerBeat = 60.0/tempo;
 var lookahead = 25.0;        // How frequently to call scheduling function
-                //(in milliseconds)
+//(in milliseconds)
 var scheduleAheadTime = 0.2;    // How far ahead to schedule audio (sec)
-                // This is calculated from lookahead, and overlaps
-                // with next interval (in case the timer is late)
+// This is calculated from lookahead, and overlaps
+// with next interval (in case the timer is late)
 var nextNoteTime = 0.0;        // when the next note is due.
 var nextCursorTime = 0.0;
 var noteResolution = 0;        // 0 == 16th, 1 == 8th, 2 == quarter note
@@ -22,7 +22,7 @@ var canvas,               // the canvas element
     canvasContext;          // canvasContext is the canvas' context 2D
 var last16thNoteDrawn = 0;    // the last "box" we drew on the screen
 var notesInQueue = [];          // the notes that have been put into the web audio,
-                // and may or may not have played yet. {note, time}
+// and may or may not have played yet. {note, time}
 
 //array of source objects that are active at a given time
 var activeSources =[];
@@ -41,15 +41,15 @@ var zoom = 1;
 var zoom4;
 
 // First, let's shim the requestAnimationFrame API, with a setTimeout fallback
-window.requestAnimFrame = (function(){
+window.requestAnimFrame = (function() {
     return  window.requestAnimationFrame ||
-        window.webkitRequestAnimationFrame ||
-        window.mozRequestAnimationFrame ||
-        window.oRequestAnimationFrame ||
-        window.msRequestAnimationFrame ||
-        function( callback ){
-            window.setTimeout(callback, 1000 / 60);
-        };
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            window.oRequestAnimationFrame ||
+            window.msRequestAnimationFrame ||
+    function(callback) {
+        window.setTimeout(callback, 1000 / 60);
+    };
 })();
 
 
@@ -62,24 +62,24 @@ function nextNote() {
 
 }
 
-function scheduleNote( beatNumber, noteTime) {
+function scheduleNote(beatNumber, noteTime) {
     // push the note on the queue, even if we're not playing.
-    notesInQueue.push( { note: beatNumber, time: noteTime } );
+    notesInQueue.push({ note: beatNumber, time: noteTime });
     var samples;
 
     if (isPlaying) {
-        activeSources.forEach(function(element, index){
+        activeSources.forEach(function(element, index) {
             if (element.sourceNode.playbackState == 3) {
                 activeSources.splice(index, 1);
             }
         });
-        }
+    }
 
-    if(times[beatNumber] != null){
+    if (times[beatNumber] != null) {
         samples = times[beatNumber];
         //console.log(samples);
         //console.log(times[beatNumber].track);
-        for(var i = 0; i<samples.length; i++){
+        for (var i = 0; i<samples.length; i++) {
             source = ac.createBufferSource();
             source.connect(trackInputNodes[samples[i].track]);
 
@@ -96,11 +96,11 @@ function scheduleNote( beatNumber, noteTime) {
 function scheduler() {
     // while there are notes that will need to play before the next interval,
     // schedule them and advance the pointer.
-    while (nextNoteTime < ac.currentTime + scheduleAheadTime ) {
-        scheduleNote( current16thNote, nextNoteTime );
+    while (nextNoteTime < ac.currentTime + scheduleAheadTime) {
+        scheduleNote(current16thNote, nextNoteTime);
         nextNote();
     }
-    timerID = window.setTimeout( scheduler, lookahead );
+    timerID = window.setTimeout(scheduler, lookahead);
 }
 
 function schedPlay(time) {
@@ -115,7 +115,7 @@ function schedPlay(time) {
             console.log("pause resume");
             //play all active sources at percents
             //console.log(activeSources);
-            activeSources.forEach(function(element, index){
+            activeSources.forEach(function(element, index) {
                 var percent = (current16thNote-element.sourceStartBar) / (element.sourceNode.buffer.duration/(secondsPerBeat*0.25));
                 element.sourceNode.start(element.sourceNode.buffer.duration * percent);
             });
@@ -130,15 +130,15 @@ function schedPlay(time) {
 
         //clockTime = current16thNote*secondsPer16;
 
-        if(isPlaying){
+        if (isPlaying) {
             nextNoteTime = ac.currentTime;
             scheduler();
             clockOutput();
         }
-    //if playing, then pause
+        //if playing, then pause
     } else {
-        window.clearTimeout( timerID );
-        activeSources.forEach(function(element){
+        window.clearTimeout(timerID);
+        activeSources.forEach(function(element) {
             element.sourceNode.stop(0);
         });
 
@@ -154,9 +154,9 @@ function schedPlay(time) {
     }
 }
 
-function schedStop(){
-   window.clearTimeout( timerID );
-   activeSources.forEach(function(element){
+function schedStop() {
+    window.clearTimeout(timerID);
+    activeSources.forEach(function(element) {
         element.sourceNode.stop(0);
     });
 
@@ -168,11 +168,11 @@ function schedStop(){
     drawTimeline();
 
     if (isPlaying) {
-     isPlaying = false;
+        isPlaying = false;
     }
 
     if (isPaused) {
-    isPaused = false;
+        isPaused = false;
     }
 
     clockOutput(0);
@@ -183,7 +183,7 @@ function schedStop(){
 function schedStepBack(time) {
     if (isPlaying) {
         schedStop();
-    }else{
+    } else {
         //schedPlay(time)
 
         k=0;
@@ -219,11 +219,11 @@ function draw() {
     requestAnimFrame(draw);
 }
 
-function drawTimeline(){
+function drawTimeline() {
     canvasContext.clearRect(0,0,canvas.width, canvas.height);
     canvasContext.fillStyle = "black";
     canvasContext.lineWidth = 1;
-    for(var i=0;i<timelineWidth;i+=pixelsPer4){
+    for (var i=0; i<timelineWidth; i+=pixelsPer4) {
         canvasContext.moveTo(i,0);
         canvasContext.lineTo(i,10);
         canvasContext.stroke();
@@ -231,7 +231,7 @@ function drawTimeline(){
     canvasContext.fillText("Bar",4,20);
 
     var bar = 2;
-    for(var i=31;i<timelineWidth;i+=(2*pixelsPer4)){
+    for (var i=31; i<timelineWidth; i+=(2*pixelsPer4)) {
         canvasContext.fillText(bar*zoom, i, 20);
         bar+=2;
     }
@@ -253,7 +253,7 @@ function timelineZoomOut() {
 
 function drawCursor(bar) {
     canvasContext.fillStyle = "FF9900";
-    canvasContext.fillRect(bar*pixelsPer16/zoom, 0, pixelsPer4/zoom, 10 );
+    canvasContext.fillRect(bar*pixelsPer16/zoom, 0, pixelsPer4/zoom, 10);
 }
 
 function cursorJump(bar) {
@@ -265,7 +265,7 @@ function cursorJump(bar) {
     drawCursor(bar*4);
 
     if (isPlaying) {
-        activeSources.forEach(function(element){
+        activeSources.forEach(function(element) {
             element.sourceNode.stop(0);
         });
     }
@@ -283,7 +283,7 @@ function cursorJump(bar) {
 function loadActiveSources() {
 }
 
-function clockOutput(t){
+function clockOutput(t) {
     clockTime = t*secondsPer16;
     if (isPlaying) {
         clockTime = ac.currentTime - playTime;
@@ -296,9 +296,9 @@ function clockOutput(t){
 function formatTime(t) {
     var msec = Math.floor((t % 1)*100);
     var seconds = Math.floor(t % 60)
-    var minutes =  Math.floor((t / 60) % 60);
+                  var minutes =  Math.floor((t / 60) % 60);
 
-    if (msec < 10){msec = "0"+msec;}
+    if (msec < 10) {msec = "0"+msec;}
     if (minutes < 10) {minutes = "0"+minutes;}
     if (seconds < 10) {seconds = "0"+seconds;}
 
@@ -306,7 +306,7 @@ function formatTime(t) {
     return t;
 }
 
-function resetCanvas (e) {
+function resetCanvas(e) {
     // resize the canvas - but remember - this clears the canvas too.
     timelineWidth = (.7446808510638297 * window.innerWidth - 20) * .829787234042553 - 20;
     if (zoom <=1) {
@@ -322,15 +322,15 @@ function resetCanvas (e) {
     //requestAnimFrame(draw);    // start the drawing loop.
 }
 
-function initSched(params){
-    canvas = document.getElementById( "timeline" );
-    canvas.addEventListener("click" , function(e){
+function initSched(params) {
+    canvas = document.getElementById("timeline");
+    canvas.addEventListener("click", function(e) {
         var relX = e.offsetX;
         var bar =Math.floor(relX/pixelsPer4);
         cursorJump(bar);
     }, false);
 
-    canvasContext = canvas.getContext( '2d' );
+    canvasContext = canvas.getContext('2d');
     canvasContext.font = '8pt Calibri';
     canvasContext.textAlign = 'center';
 
@@ -343,7 +343,7 @@ function initSched(params){
     window.onorientationchange = resetCanvas;
     window.onresize = resetCanvas
 
-   clockOutput(0);
+                      clockOutput(0);
 }
 
 window.addEventListener("load", initSched);

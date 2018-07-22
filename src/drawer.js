@@ -12,10 +12,10 @@ WaveSurfer.Drawer = {
         radius: 10
     },
 
-    init: function (params) {
+    init: function(params) {
         var my = this;
         this.params = Object.create(params);
-        Object.keys(this.defaultParams).forEach(function (key) {
+        Object.keys(this.defaultParams).forEach(function(key) {
             if (!(key in params)) { params[key] = my.defaultParams[key]; }
         });
 
@@ -34,7 +34,7 @@ WaveSurfer.Drawer = {
         }
     },
 
-    getPeaks: function (buffer) {
+    getPeaks: function(buffer) {
         // Frames per pixel
         var k = buffer.getChannelData(0).length / this.width;
 
@@ -47,8 +47,8 @@ WaveSurfer.Drawer = {
                 var chan = buffer.getChannelData(c);
                 var vals = chan.subarray(i * k, (i + 1) * k);
                 var peak = -Infinity;
-                for (var p = 0, l = vals.length; p < l; p++){
-                    if (vals[p] > peak){
+                for (var p = 0, l = vals.length; p < l; p++) {
+                    if (vals[p] > peak) {
                         peak = vals[p];
                     }
                 }
@@ -61,14 +61,14 @@ WaveSurfer.Drawer = {
             }
         }
     },
-    
-    progress: function (percents) {
+
+    progress: function(percents) {
         this.cursorPos = ~~(this.width * percents);
         this.redraw();
     },
-    
 
-    drawBuffer: function (buffer) {
+
+    drawBuffer: function(buffer) {
         this.getPeaks(buffer);
         this.progress(0);
     },
@@ -76,39 +76,39 @@ WaveSurfer.Drawer = {
     /**
      * Redraws the entire canvas on each audio frame.
      */
-    
-    redraw: function () {
+
+    redraw: function() {
         var my = this;
         this.clear();
         this.roundRectangle(0,0,this.width, this.height, this.params.radius);
         // Draw WebAudio buffer peaks.
         if (this.peaks) {
-            this.peaks.forEach(function (peak, index) {
+            this.peaks.forEach(function(peak, index) {
                 my.drawFrame(index, peak, my.maxPeak);
             });
-            
-             
-       
-        
-        // Or draw an image.
+
+
+
+
+            // Or draw an image.
         } else if (this.image) {
             this.drawImage();
         }
 
         //this.drawCursor();
     },
-    
 
-    clear: function () {
+
+    clear: function() {
         this.cc.clearRect(0, 0, this.width, this.height);
     },
 
-    drawFrame: function (index, value, max) {
+    drawFrame: function(index, value, max) {
         var w = 1;
-        
+
         //subtract radius from height to reduce vertical range
         var h = Math.round(value * ((this.height-this.params.radius) / max));
-       
+
 
         var x = index * w;
         var y = Math.round((this.height - h) / 2);
@@ -116,8 +116,8 @@ WaveSurfer.Drawer = {
         this.cc.fillStyle = this.params.waveColor;
 
         this.cc.fillRect(x, y, w, h);
-        
-       
+
+
     },
     /*
     drawCursor: function () {
@@ -135,10 +135,10 @@ WaveSurfer.Drawer = {
     /**
      * Loads and caches an image.
      */
-    loadImage: function (url, callback) {
+    loadImage: function(url, callback) {
         var my = this;
         var img = document.createElement('img');
-        var onLoad = function () {
+        var onLoad = function() {
             img.removeEventListener('load', onLoad);
             my.image = img;
             callback(img);
@@ -150,7 +150,7 @@ WaveSurfer.Drawer = {
     /**
      * Draws a pre-drawn waveform image.
      */
-    drawImage: function () {
+    drawImage: function() {
         var cc = this.cc;
         cc.drawImage(this.image, 0, 0, this.width, this.height);
         cc.save();
@@ -160,7 +160,7 @@ WaveSurfer.Drawer = {
         cc.restore();
     },
 
-    drawLoading: function (progress) {
+    drawLoading: function(progress) {
         var color = this.params.loadingColor;
         var bars = this.params.loadingBars;
         var barHeight = this.params.barHeight;
@@ -175,11 +175,11 @@ WaveSurfer.Drawer = {
             this.cc.fillRect(x, y, barWidth, barHeight);
         }
     },
-    
-    roundRectangle: function(x, y, w, h, r){
-        
-        
-        
+
+    roundRectangle: function(x, y, w, h, r) {
+
+
+
         //from http://stackoverflow.com/questions/1255512/how-to-draw-a-rounded-rectangle-on-html-canvas
         this.cc.strokeStyle = this.params.progressColor;
         this.cc.lineWidth = 1;
@@ -196,10 +196,10 @@ WaveSurfer.Drawer = {
         this.cc.closePath();
         this.cc.fillStyle = '#E0E0E0';
         this.cc.fill();
-        
+
         this.cc.stroke();
-        
-        
-        
-        }
+
+
+
+    }
 };

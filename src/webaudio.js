@@ -14,7 +14,7 @@ WaveSurfer.WebAudio = {
      * @param {Object} params
      * @param {String} params.smoothingTimeConstant
      */
-    init: function (params) {
+    init: function(params) {
         params = params || {};
         this.ac = params.audioContext;
 
@@ -23,7 +23,7 @@ WaveSurfer.WebAudio = {
 
         this.analyser = this.ac.createAnalyser();
         this.analyser.smoothingTimeConstant = params.smoothingTimeConstant ||
-            this.Defaults.smoothingTimeConstant;
+                                              this.Defaults.smoothingTimeConstant;
         this.analyser.fftSize = this.fftSize;
         this.analyser.connect(this.destination);
 
@@ -35,11 +35,11 @@ WaveSurfer.WebAudio = {
         this.paused = true;
     },
 
-    bindUpdate: function (callback) {
+    bindUpdate: function(callback) {
         this.proc.onaudioprocess = callback;
     },
 
-    setSource: function (source) {
+    setSource: function(source) {
         this.source && this.source.disconnect();
         this.source = source;
         this.source.connect(this.analyser);
@@ -51,30 +51,30 @@ WaveSurfer.WebAudio = {
      *
      * @param {AudioBuffer} audioData Audio data.
      */
-    loadData: function (audioData, cb) {
+    loadData: function(audioData, cb) {
         var my = this;
 
         this.pause();
 
         this.ac.decodeAudioData(
             audioData,
-            function (buffer) {
-                my.currentBuffer = buffer;
-                my.lastStart = 0;
-                my.lastPause = 0;
-                my.startTime = null;
-                cb(buffer);
-                console.log(buffer);
-            },
-            Error
+        function(buffer) {
+            my.currentBuffer = buffer;
+            my.lastStart = 0;
+            my.lastPause = 0;
+            my.startTime = null;
+            cb(buffer);
+            console.log(buffer);
+        },
+        Error
         );
     },
 
-    isPaused: function () {
+    isPaused: function() {
         return this.paused;
     },
 
-    getDuration: function () {
+    getDuration: function() {
         return this.currentBuffer && this.currentBuffer.duration;
     },
 
@@ -87,7 +87,7 @@ WaveSurfer.WebAudio = {
      * @param {Number} end End offset in seconds,
      * relative to the beginning of the track.
      */
-    play: function (start, end, delay) {
+    play: function(start, end, delay) {
         if (!this.currentBuffer) {
             return;
         }
@@ -98,7 +98,7 @@ WaveSurfer.WebAudio = {
         this.source.buffer = this.currentBuffer;
 
         if (null == start) { start = this.getCurrentTime(); }
-        if (null == end  ) { end = this.source.buffer.duration; }
+        if (null == end) { end = this.source.buffer.duration; }
         if (null == delay) { delay = 0; }
 
         this.lastStart = start;
@@ -112,7 +112,7 @@ WaveSurfer.WebAudio = {
     /**
      * Pauses the loaded audio.
      */
-    pause: function (delay) {
+    pause: function(delay) {
         if (!this.currentBuffer || this.paused) {
             return;
         }
@@ -124,11 +124,11 @@ WaveSurfer.WebAudio = {
         this.paused = true;
     },
 
-    getPlayedPercents: function () {
+    getPlayedPercents: function() {
         return this.getCurrentTime() / this.getDuration();
     },
 
-    getCurrentTime: function () {
+    getCurrentTime: function() {
         if (this.isPaused()) {
             return this.lastPause;
         } else {
@@ -142,7 +142,7 @@ WaveSurfer.WebAudio = {
      * @return {Uint8Array} The waveform data.
      * Values range from 0 to 255.
      */
-    waveform: function () {
+    waveform: function() {
         this.analyser.getByteTimeDomainData(this.dataArray);
         return this.dataArray;
     },
@@ -153,7 +153,7 @@ WaveSurfer.WebAudio = {
      * @return {Uint8Array} The frequency data.
      * Values range from 0 to 255.
      */
-    frequency: function () {
+    frequency: function() {
         this.analyser.getByteFrequencyData(this.dataArray);
         return this.dataArray;
     }

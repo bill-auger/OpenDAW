@@ -1,7 +1,7 @@
 'use strict';
 
 var WaveSurfer = {
-    init: function (params) {
+    init: function(params) {
         var my = this;
 
         if (params.audio) {
@@ -49,7 +49,7 @@ var WaveSurfer = {
         }
     },
     */
-    drawBuffer: function () {
+    drawBuffer: function() {
         if (this.backend.currentBuffer) {
             this.drawer.drawBuffer(this.backend.currentBuffer);
         }
@@ -58,13 +58,13 @@ var WaveSurfer = {
     /**
      * Loads an audio file via XHR.
      */
-    load: function (src) {
+    load: function(src) {
         var my = this;
         var xhr = new XMLHttpRequest();
         xhr.open('GET', src, true);
         xhr.responseType = 'arraybuffer';
 
-        xhr.addEventListener('progress', function (e) {
+        xhr.addEventListener('progress', function(e) {
             if (e.lengthComputable) {
                 var percentComplete = e.loaded / e.total;
             } else {
@@ -74,7 +74,7 @@ var WaveSurfer = {
             my.drawer.drawLoading(percentComplete);
         }, false);
 
-        xhr.addEventListener('load', function (e) {
+        xhr.addEventListener('load', function(e) {
             my.backend.loadData(
                 e.target.response,
                 my.drawBuffer.bind(my)

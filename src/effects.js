@@ -1,27 +1,26 @@
 var reverbIrBuffers = [];
 
 function logslider(position) {
-  // position will be between 0 and 100
-  var minp = 0;
-  var maxp = 100;
+    // position will be between 0 and 100
+    var minp = 0;
+    var maxp = 100;
 
-  // The result should be between 40hz an 20000hz
-  var minv = Math.log(40);
-  var maxv = Math.log(20000);
+    // The result should be between 40hz an 20000hz
+    var minv = Math.log(40);
+    var maxv = Math.log(20000);
 
-  // calculate adjustment factor
-  var scale = (maxv-minv) / (maxp-minp);
+    // calculate adjustment factor
+    var scale = (maxv-minv) / (maxp-minp);
 
-  return Math.exp(minv + scale*(position-minp));
+    return Math.exp(minv + scale*(position-minp));
 }
 
 function muteTrack(trackNumber) {
     var node = trackMasterGains[trackNumber];
-    if(!node.isMuted){
+    if (!node.isMuted) {
         node.node.gain.value = 0;
         node.isMuted = true;
-    }
-    else if (node.isMuted){
+    } else if (node.isMuted) {
         node.node.gain.value = 1;
         node.isMuted = false;
     }
@@ -35,25 +34,25 @@ function solo(trackNumber) {
         for (var i=1; i <= globalNumberOfTracks; i++) {
             var node = trackMasterGains[i];
 
-                if(i != trackNumber){
-                    if(!node.isMuted){
-                        node.node.gain.value = 0;
-                        node.isMuted = true;
-                    }
+            if (i != trackNumber) {
+                if (!node.isMuted) {
+                    node.node.gain.value = 0;
+                    node.isMuted = true;
                 }
+            }
         }
-    }else if (thisNode.isSolo) {
+    } else if (thisNode.isSolo) {
         thisNode.isSolo = false;
 
         for (var i=1; i <= globalNumberOfTracks; i++) {
             var node = trackMasterGains[i];
 
-                if(i != trackNumber){
-                    if(node.isMuted){
-                        node.node.gain.value = 1;
-                        node.isMuted = false;
-                    }
+            if (i != trackNumber) {
+                if (node.isMuted) {
+                    node.node.gain.value = 1;
+                    node.isMuted = false;
                 }
+            }
         }
     }
 
@@ -69,32 +68,32 @@ function setTrackVolume(trackNumber,newValue) {
     node.gain.value = (newValue/100)* (newValue/100);
 }
 
-function setCompressorThresholdValue(trackNumber,threshold){
+function setCompressorThresholdValue(trackNumber,threshold) {
     var node = trackCompressors[trackNumber];
     node.threshold.value = threshold;
 }
 
-function setCompressorRatioValue(trackNumber,ratio){
+function setCompressorRatioValue(trackNumber,ratio) {
     var node = trackCompressors[trackNumber];
     node.ratio.value = ratio;
 }
 
-function setCompressorAttackValue(trackNumber,attack){
+function setCompressorAttackValue(trackNumber,attack) {
     var node = trackCompressors[trackNumber];
     node.attack.value = attack/1000;
 }
 
-function setFilterCutoffValue(trackNumber,freq){
+function setFilterCutoffValue(trackNumber,freq) {
     var node = trackFilters[trackNumber];
     node.frequency.value = logslider(freq);
 }
 
-function setFilterQValue(trackNumber,Q){
+function setFilterQValue(trackNumber,Q) {
     var node = trackFilters[trackNumber];
     node.Q.value = Q;
 }
 
-function setReverbWetDryValue(trackNumber, v){
+function setReverbWetDryValue(trackNumber, v) {
     var wet = v/100;
     var dry = 1-wet;
     //set wetGain node gain
@@ -104,15 +103,15 @@ function setReverbWetDryValue(trackNumber, v){
     trackReverbs[trackNumber][5].gain.value = dry;
 }
 
-function setReverbIr(trackNumber, v){
+function setReverbIr(trackNumber, v) {
     //if reverb buffer has already been loaded from wav file, use the exisiting arrayBuffer
-   if (reverbIrBuffers[v] != null) {
-    trackReverbs[trackNumber][2].buffer = reverbIrBuffers[v]
+    if (reverbIrBuffers[v] != null) {
+        trackReverbs[trackNumber][2].buffer = reverbIrBuffers[v]
 
-    //if not, create an arrayBuffer object from the wav file
-   }else{
-    loadReverbIR(v, trackReverbs[trackNumber][2]);
-   }
+                                              //if not, create an arrayBuffer object from the wav file
+    } else {
+        loadReverbIR(v, trackReverbs[trackNumber][2]);
+    }
 }
 
 function setDelayWetDryValue(trackNumber, v) {
@@ -176,24 +175,24 @@ function createTrackReverb() {
     return reverbNetwork;
 }
 
- function loadReverbIR(reverb, convNode) {
+function loadReverbIR(reverb, convNode) {
     var url;
     switch (reverb) {
         case 0:
             url = 'src/data/ir/BelleMeade.wav';
-        break;
+            break;
 
         case 1:
             url = 'src/data/ir/ir_rev_short.wav'
-        break;
+                  break;
     }
 
     var request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.responseType = "arraybuffer";
 
-    request.onload = function () {
-	convNode.buffer = ac.createBuffer(request.response, false);
+    request.onload = function() {
+        convNode.buffer = ac.createBuffer(request.response, false);
         reverbIrBuffers[reverb] = convNode.buffer;
     }
     request.send();
@@ -207,13 +206,13 @@ function createTrackReverb() {
     loadReverbIR(ir, trackReverbs[trackNumber][2].buffer);
 }*/
 
-function setFilterType(trackNumber,type){
+function setFilterType(trackNumber,type) {
     var node = trackFilters[trackNumber];
-    if(type == 0){
+    if (type == 0) {
         node.type = 0;
-    } else if(type == 1){
+    } else if (type == 1) {
         node.type = 1;
-    } else if(type == 2){
+    } else if (type == 2) {
         node.type = 2;
     }
 }
@@ -284,9 +283,9 @@ function createTrackTremolo() {
 function setTremoloRateValue(trackNumber, v) {
 
     //access rate node
-     //trackTremolos[trackNumber][3].stop();
+    //trackTremolos[trackNumber][3].stop();
     trackTremolos[trackNumber][3].frequency=v;
-     //trackTremolos[trackNumber][3].start();
+    //trackTremolos[trackNumber][3].start();
 }
 
 function setTremoloDepthValue(trackNumber, v) {

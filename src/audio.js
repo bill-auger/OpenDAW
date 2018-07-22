@@ -7,17 +7,17 @@ WaveSurfer.Audio = {
      * @param {Object} params (required)
      * @param {HTMLAudioElement} params.audio (required)
      */
-    init: function (params) {
+    init: function(params) {
         params = params || {};
 
         this.audio = params.audio;
     },
 
-    isPaused: function () {
+    isPaused: function() {
         return this.audio.paused;
     },
 
-    getDuration: function () {
+    getDuration: function() {
         return this.audio.duration;
     },
 
@@ -27,7 +27,7 @@ WaveSurfer.Audio = {
      * @param {Number} start Start offset in seconds,
      * relative to the beginning of the track.
      */
-    play: function (start) {
+    play: function(start) {
         start = start || 0;
         if (this.audio.currentTime !== start) {
             this.audio.currentTime = start;
@@ -38,16 +38,16 @@ WaveSurfer.Audio = {
     /**
      * Pauses playback.
      */
-    pause: function () {
+    pause: function() {
         this.audio.pause();
     },
 
-    getPlayedPercents: function () {
+    getPlayedPercents: function() {
         var time = Math.min(this.audio.currentTime, this.audio.duration);
         return (time / this.audio.duration);
     },
 
-    bindUpdate: function (callback) {
+    bindUpdate: function(callback) {
         this.audio.addEventListener('timeupdate', callback, false);
     }
 };
