@@ -12,6 +12,8 @@ const FAKE_MODAL_DIV_ID = 'fake-modal-div';
 
 var FakeModalBgDiv;
 var FakeModalDiv;
+var LatencyInput;
+var LatencyRecorder;
 
 var ac = new (window.AudioContext || window.webkitAudioContext);
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia ||
@@ -702,6 +704,7 @@ $(document).ready(function() {
 
 FakeModalBgDiv = document.getElementById(FAKE_MODAL_BG_DIV_ID);
 FakeModalDiv = document.getElementById(FAKE_MODAL_DIV_ID);
+LatencyInput = document.getElementById('latency-input');
 createNodes(LATENCY_IN_TRACK_N); createTrack(LATENCY_IN_TRACK_N);
 [ { 'track-n': LATENCY_OUT_TRACK_N , 'label': 'Reference' } ,
   { 'track-n': LATENCY_IN_TRACK_N  , 'label': 'Input'     } ].forEach(function(latencyTrackDict)
@@ -715,10 +718,10 @@ document.getElementById('track' + latencyTrackN + 'title').textContent = latency
 }) ;
 $("#selectTrack" + LATENCY_OUT_TRACK_N).off('click');
 $("#selectTrack" + LATENCY_IN_TRACK_N).off('click');
-$('#latency-input').change(function() {
+LatencyInput.change(function() {
 console.info("#latency-input onchange=" + $(this).val());
-console.info("#latency-input recorder=" + activeRecorder);
-                               /* TODO*/activeRecorder.setLatency($(this).val()) ; }) ;
+console.info("#latency-input recorder=" + LatencyRecorder);
+                        /* TODO*/LatencyRecorder.setLatency($(this).val()) ; }) ;
 
 //             var source = ac.createBufferSource() ;
 //             source.connect(trackInputNodes[LatencyClip.track]) ;
@@ -1000,12 +1003,14 @@ function presentLatencyModal()
 {
     FakeModalBgDiv.style.display = FakeModalDiv.style.display = 'block';
     $('body').trigger('solo-event', LATENCY_OUT_TRACK_N); $(this).button('toggle');
+    LatencyRecorder = createRecorder();
 }
 
 function dismissLatencyModal()
 {
     FakeModalBgDiv.style.display = FakeModalDiv.style.display = 'none';
     $('body').trigger('solo-event', LATENCY_OUT_TRACK_N); $(this).button('toggle');
+    destroyRecorder(LatencyRecorder);
 }
 
 window.onload = function init() {
