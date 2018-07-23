@@ -49,6 +49,7 @@ var wavesurfer = (function() {
         var sampleUrl = song.url.split("/");
         var sampleTitle = sampleUrl[sampleUrl.length - 1];
         var obj;
+
         $("#libraryList").append("<li id=librarySample" + song.id + " class=\"librarySample\" data-id=" + song.id + " data-url=" + song.url + " data-duration=" + song.duration + "><a href=\"#\">" + sampleTitle + "</a></li>");
         $("#librarySample" + song.id).draggable({
             revert: true,
@@ -117,10 +118,9 @@ var wavesurfer = (function() {
         effects = json.projectInfo.effects;
         //create track-specific nodes
         globalNumberOfTracks = numberOfTracks;
-        createNodes(numberOfTracks);
-
         for (var i = 0; i < numberOfTracks; i++) {
             var currentTrackNumber = i + 1;
+            createNodes(currentTrackNumber);
             createTrack(currentTrackNumber);
             $.each(effects[i], function() {
                 if (this.type == "Compressor") {
@@ -223,7 +223,7 @@ $(document).ready(function() {
     $("#effectSortable").sortable({
         cancel: "canvas,input",
         /*
-        sort: function(event, ui){
+        sort: function(event, ui) {
              console.log($("#effectSortable").sortable("toArray"))
         }*/
     });
@@ -597,7 +597,6 @@ $(document).ready(function() {
         $("#masterControl").css("display", "none");
     });
 
-
     $("#masterVolume").slider({
         orientation: "vertical",
         range: "min",
@@ -617,18 +616,8 @@ $(document).ready(function() {
             currentSideBarHeight += 90;
             $(".sidebar").css('height', "" + currentSideBarHeight + "px");
         }
+        createNodes(newTrackNumber);
         createTrack(newTrackNumber);
-        var trackMasterGainNode = ac.createGain();
-        var trackInputNode = ac.createGain();
-        var trackVolumeNode = ac.createGain();
-
-        trackMasterGainNode.connect(masterGainNode);
-        trackVolumeNode.connect(trackMasterGainNode);
-        trackInputNode.connect(trackVolumeNode);
-
-        trackMasterGains[newTrackNumber] = {node: trackMasterGainNode, isMuted: false, isSolo: false};
-        trackVolumeGains[newTrackNumber] = trackVolumeNode;
-        trackInputNodes[newTrackNumber] = trackInputNode;
     });
 
     drawTimeline();
@@ -700,6 +689,7 @@ function createTrack(trackNumber) {
         var soloTrackNumber = $(this).attr('id').split('solo')[1];
         $('body').trigger('solo-event', soloTrackNumber);
     });
+
     $("#record" + trackNumber).click(function() {
         var recordTrackNumber = $(this).attr('id').split('record')[1];
         $(this).button('toggle');
@@ -856,21 +846,19 @@ function createTrack(trackNumber) {
     });
 }
 
-function createNodes(numTracks) {
-    //for each track create a master gain node. specific tracks represented by array index i
-    for (var i = 1; i <= numTracks; i++) {
-        var trackMasterGainNode = ac.createGain();
-        var trackInputNode = ac.createGain();
-        var trackVolumeNode = ac.createGain();
+function createNodes(trackId) {
+    //create a master gain node. specific tracks represented by trackId
+    var trackMasterGainNode = ac.createGain();
+    var trackInputNode = ac.createGain();
+    var trackVolumeNode = ac.createGain();
 
-        trackMasterGainNode.connect(masterGainNode);
-        trackVolumeNode.connect(trackMasterGainNode);
-        trackInputNode.connect(trackVolumeNode);
+    trackMasterGainNode.connect(masterGainNode);
+    trackVolumeNode.connect(trackMasterGainNode);
+    trackInputNode.connect(trackVolumeNode);
 
-        trackMasterGains[i] = {node: trackMasterGainNode, isMuted: false, isSolo: false};
-        trackVolumeGains[i] = trackVolumeNode;
-        trackInputNodes[i] = trackInputNode;
-    }
+    trackMasterGains[trackId] = {node: trackMasterGainNode, isMuted: false, isSolo: false};
+    trackVolumeGains[trackId] = trackVolumeNode;
+    trackInputNodes[trackId] = trackInputNode;
 }
 
 function startUserMedia(stream) {
@@ -887,7 +875,5 @@ window.onload = function init() {
         alert('No web audio support in this browser!');
     }
 
-    navigator.getUserMedia({audio: true}, startUserMedia, function(e) {
-    });
+    navigator.getUserMedia({audio: true}, startUserMedia, function(e) {});
 };
-
