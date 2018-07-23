@@ -173,7 +173,7 @@ if (sampleTitle == 'latency.wav') console.info("createClip() out") ;
 
 
 createNodes(LATENCY_OUT_TRACK_N); createTrack(LATENCY_OUT_TRACK_N);
-LatencyClip = createWavesurfer(LATENCY_PING_DICT) ;
+LatencyClip = createClipWavesurfer(LATENCY_PING_DICT) ;
 if (LatencyClip != undefined)
 {
   load(LatencyClip.bufferURL, LatencyClip.id);
@@ -718,7 +718,7 @@ document.getElementById('track' + latencyTrackN + 'title').textContent = latency
 }) ;
 $("#selectTrack" + LATENCY_OUT_TRACK_N).off('click');
 $("#selectTrack" + LATENCY_IN_TRACK_N).off('click');
-LatencyInput.change(function() {
+LatencyInput.addEventListener("change", function() {
 console.info("#latency-input onchange=" + $(this).val());
 console.info("#latency-input recorder=" + LatencyRecorder);
                         /* TODO*/LatencyRecorder.setLatency($(this).val()) ; }) ;
@@ -861,7 +861,7 @@ function createTrack(trackNumber) {
 // *                }
 // *            });
 // =
-            createWavesurfer('violet', 'purple', sampleURL);
+            createClipWavesurfer('violet', 'purple', sampleURL);
 // =
 // *            var wavesurfer = Object.create(WaveSurfer);
 // *            wavesurfer.init({
@@ -972,7 +972,7 @@ function destroyRecorder(recorder)
 // =
         recorder.exportWAV(function(blob) {
             var url = URL.createObjectURL(blob);
-            createWavesurfer('#08c', '#08c', url);
+            createClipWavesurfer('#08c', '#08c', url);
 // =
 // *            var wavesurfer = Object.create(WaveSurfer);
 // *            wavesurfer.init({
