@@ -84,11 +84,7 @@ var wavesurfer = (function() {
                     times[currentStartBar] = jQuery.removeFromArray(song.id, times[currentStartBar]);
                     $(this).attr('data-startTime', parseInt($(this).css('left')) / pixelsPer16);
                     var newStartTime = $(this).attr('data-startTime');
-                    if (times[newStartTime] == null) {
-                        times[newStartTime] = [ {id: song.id, track: song.track}];
-                    } else {
-                        times[newStartTime].push({id: song.id, track: song.track});
-                    }
+                    setStartTimes(newStartTime, song.id, song.track);
                 }
             });
             $("#sample" + song.id + "Span" + sampleNumber).resizable({
@@ -147,20 +143,18 @@ var wavesurfer = (function() {
         //wavesurfers is array of all tracks
         var wavesurfers = json.samples.map(createWavesurfer);
         $.each(wavesurfers, function() {
-            var currentSample = this;
+            var clip = this;
             //if they are in workspace...
-            if (currentSample != undefined) {
+            if (clip != undefined) {
+                var bufferUrl = clip.bufferURL;
+                var clipId = clip.id;
+                var startTimes = clip.startTimes;
+                var trackId = sample.track;
+
                 //load the buffer
-                load(currentSample.bufferURL, currentSample.id);
+                load(bufferUrl, clipId);
                 //store the times
-                $.each(currentSample.startTimes, function() {
-                    var currentStartTime = this;
-                    if (times[currentStartTime] == null) {
-                        times[currentStartTime] = [ {id: currentSample.id, track: currentSample.track}];
-                    } else {
-                        times[currentStartTime].push({id: currentSample.id, track: currentSample.track});
-                    }
-                });
+                $.each(startTimes, function() { setStartTimes(this, clipId, trackId); });
             }
         });
     };
@@ -175,7 +169,6 @@ var wavesurfer = (function() {
     xhr.send();
 }());
 
-
 function load(src, id) {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', src, true);
@@ -186,6 +179,15 @@ function load(src, id) {
     }, false);
     xhr.send();
 };
+
+function setStartTimes(startTime, clipId, trackId)
+{
+    if (times[startTime] == null) {
+        times[startTime] = [ { id: clipId, track: trackId } ];
+    } else {
+        times[startTime].push({ id: clipId, track: trackId });
+    }
+}
 
 
 initSched({
@@ -744,11 +746,7 @@ function createTrack(trackNumber) {
                         times[currentStartBar] = jQuery.removeFromArray(currentRecordingCount, times[currentStartBar]);
                         $(this).attr('data-startTime', parseInt($(this).css('left')) / pixelsPer16);
                         var newStartTime = $(this).attr('data-startTime');
-                        if (times[newStartTime] == null) {
-                            times[newStartTime] = [ {id: currentRecordingCount, track: recordTrackNumber}];
-                        } else {
-                            times[newStartTime].push({id: currentRecordingCount, track: recordTrackNumber});
-                        }
+                        setStartTimes(newStartTime, currentRecordingCount, recordTrackNumber);
                         console.log("Old Start Time: " + currentStartBar);
                         console.log("New Start Time: " + newStartTime);
                     }
@@ -771,11 +769,8 @@ function createTrack(trackNumber) {
                     globalWavesurfers.push(wavesurfer);
                     buffers[recordingCount] = {buffer: newBuffer};
 
-                    if (times[startBar] == null) {
-                        times[startBar] = [ {id: recordingCount, track: recordTrackNumber}];
-                    } else {
-                        times[startBar].push({id: recordingCount, track: recordTrackNumber});
-                    }
+                    setStartTimes(startBar, recordingCount, recordTrackNumber);
+
                     recordingCount++;
                 });
             });
@@ -815,11 +810,7 @@ function createTrack(trackNumber) {
                     times[currentStartBar] = jQuery.removeFromArray(sampleID, times[currentStartBar]);
                     $(this).attr('data-startTime', parseInt($(this).css('left')) / pixelsPer16);
                     var newStartTime = $(this).attr('data-startTime');
-                    if (times[newStartTime] == null) {
-                        times[newStartTime] = [ {id: sampleID, track: trackNumber}];
-                    } else {
-                        times[newStartTime].push({id: sampleID, track: trackNumber});
-                    }
+                    setStartTimes(newStartTime, sampleID, trackNumber);
                 }
             });
 
@@ -834,14 +825,11 @@ function createTrack(trackNumber) {
             });
             wavesurfer.load(sampleURL);
             globalWavesurfers.push(wavesurfer);
+
             if (buffers[sampleID] == undefined) {
                 load(sampleURL, sampleID);
             }
-            if (times[sampleStartTime] == null) {
-                times[sampleStartTime] = [ {id: sampleID, track: trackNumber}];
-            } else {
-                times[sampleStartTime].push({id: sampleID, track: trackNumber});
-            }
+            setStartTimes(sampleStartTime, sampleID, trackNumber);
         }
     });
 }
