@@ -29,6 +29,8 @@ var pixelsPer4 = 4 * pixelsPer16; //pixels per 1/4 note used for sample canvas s
 var bpm = tempo;
 var secondsPer16 = 0.25 * 60 / bpm;
 
+var LatencyClip ;
+
 
 jQuery.removeFromArray = function(value, arr) {
     return jQuery.grep(arr, function(elem, index) {
@@ -44,6 +46,9 @@ var wavesurfer = (function() {
     'use strict';
 
     var createClip = function(song) {
+if (sampleTitle == 'latency.wav') console.info("createClip() song.id" +  song.id + " song.duration=" +  song.duration) ;
+
+
         var startTimes = song.startTime;
         var sampleNumber = 0;
         var sampleUrl = song.url.split("/");
@@ -76,6 +81,10 @@ var wavesurfer = (function() {
 
             sampleNumber++;
         });
+
+
+if (sampleTitle == 'latency.wav') console.info("createClip() out") ;
+
 
         return obj;
     };
@@ -138,10 +147,31 @@ var wavesurfer = (function() {
     };
     xhr.open('GET', 'src/data/samples.txt');
     xhr.send();
+
+
+createTrack(42);
+var latency_ping_dict = {"id":"42","url":"src/data/samples/latency.wav","track":"42","startTime":[0],"duration":"1.122244954109192"} ;
+
+LatencyClip = createWavesurfer(latency_ping_dict) ;
+if (LatencyClip != undefined)
+{
+  load(LatencyClip.bufferURL, LatencyClip.id);
+  $.each(LatencyClip.startTimes, function()
+  {
+    var currentStartTime = this;
+    times[currentStartTime] = [ { id: LatencyClip.id , track: LatencyClip.track } ] ;
+  }) ;
+}
+//             var source = ac.createBufferSource() ;
+//             source.connect(trackInputNodes[LatencyClip.track]) ;
+//             source.buffer = buffers[LatencyClip.id].buffer;
+//
+//             push source node and the scheduled start time of the sample
+//             activeSources.push({sourceNode: source, sourceStartBar: beatNumber});
+//             source.start(ac.currentTime);
 }());
 
 
-<<<<<<< HEAD
 function createClipElements(idPrefix , clipId , sampleNumber , startTime ,
                             trackDiv , clipDuration , trackId)
 {
@@ -650,6 +680,29 @@ $(document).ready(function() {
         createTrack(newTrackNumber);
     });
 
+
+var LATENCY_IN_TRACK_N = 42 ;
+var LATENCY_OUT_TRACK_N = 43 ;
+[ { 'track-n': LATENCY_IN_TRACK_N  , 'label': 'Input' } ,
+  { 'track-n': LATENCY_OUT_TRACK_N , 'label': 'Reference' } ].forEach(function(latencyTrackDict)
+{
+var latencyTrackN = latencyTrackDict['track-n'] ;
+var latencyTrackLabel = latencyTrackDict['label'] ;
+createTrack(latencyTrackN);
+var latencyTrack = document.getElementById("selectTrack" + latencyTrackN) ;
+document.getElementById('fake-modal-div').appendChild(latencyTrack) ;
+document.getElementById('track' + latencyTrackN + 'title').textContent = latencyTrackLabel ;
+createNodes(latencyTrackN);
+}) ;
+//             var source = ac.createBufferSource() ;
+//             source.connect(trackInputNodes[LatencyClip.track]) ;
+//             source.buffer = buffers[LatencyClip.id].buffer;
+
+//             push source node and the scheduled start time of the sample
+//             activeSources.push({sourceNode: source, sourceStartBar: beatNumber});
+//             source.start(ac.currentTime);
+
+
     drawTimeline();
 });
 
@@ -719,6 +772,10 @@ function createTrack(trackNumber) {
         var soloTrackNumber = $(this).attr('id').split('solo')[1];
         $('body').trigger('solo-event', soloTrackNumber);
     });
+
+
+$('#latency-input').click(function() { activeRecorder.setLatency(-1) ; }) ;
+
 
     $("#record" + trackNumber).click(function() {
         var recordTrackNumber = $(this).attr('id').split('record')[1];
@@ -923,5 +980,5 @@ window.onload = function init() {
         alert('No web audio support in this browser!');
     }
 
-    navigator.getUserMedia({audio: true}, startUserMedia, function(e) {});
+//     navigator.getUserMedia({audio: true}, startUserMedia, function(e) {});
 };
