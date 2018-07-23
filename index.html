@@ -381,10 +381,6 @@
             </div>
         </div>
 
-        <script src="js/jquery-1.9.1.min.js"></script>
-        <script src="js/jquery-knob.js"></script>
-        <script src="js/jquery-ui.js"></script>
-
 
 <style>
 html , body , #sidebar-div , .well , .trackBox , .track { background-color: #000 ; color: #888 ; }
@@ -398,19 +394,29 @@ html , body , #sidebar-div , .well , .trackBox , .track { background-color: #000
                      margin-top: -8em ; margin-left: -27em ;
                      padding: 1em ; border: 1px solid ; border-radius: 2em ;
                      background-color: #444 ; opacity: 1.0 ;                                   }
-#latency-input { width: 6em ; right: 0 ; }
+#latency-input { position: relative ; width: 100px ; right: 16px ; height: 32px; font-size: 32px ; }
 #track42 , #track43 { overflow: hidden ; }
+#fake-modal-l-div , #fake-modal-c-div , #fake-modal-r-div { height: 42px ; display: inline-block ; }
+#fake-modal-l-div  { width: 420px ; background-color: #222 ; border: 1px solid green ; border-radius: 10px ; }
+#fake-modal-c-div  { width: 207px  ; font-family: monospace ; font-size: 16px ; vertical-align: bottom ; }
+#fake-modal-r-div  { width: 100px  ; float: right; }
+#latency-vu-canvas { width: 420px ; height: 42px ; }
 
 /* #fake-modal-div { top: 25% ; left: 75% ; } */
 </style>
 <div id="fake-modal-bg-div"></div>
 <div id="fake-modal-div">
-  <div id="fake-modal-div-l"></div>
-  <div id="fake-modal-div-c"></div>
-  <div id="fake-modal-div-r">
+  <div id="fake-modal-l-div"><canvas id='latency-vu-canvas' /></div>
+  <div id="fake-modal-c-div">Latency Compensation</div>
+  <div id="fake-modal-r-div">
     <input id="latency-input" type="number" class="btn btn-mini" value="0" />
   </div>
 </div>
+
+
+        <script src="js/jquery-1.9.1.min.js"></script>
+        <script src="js/jquery-knob.js"></script>
+        <script src="js/jquery-ui.js"></script>
 
         <script src="js/bootstrap-button.js"></script>
         <script src="js/bootstrap.min.js"></script>

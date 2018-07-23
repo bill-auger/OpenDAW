@@ -1,19 +1,22 @@
+const MAX_W = 420;
+
 var sourceNode;
 var splitter;
 var analyser, analyser2;
 var javascriptNode;
 
 // get the context from the canvas to draw on
-var ctx = $("#VUmeterCanvas").get()[0].getContext("2d");
+// var ctx = $("#VUmeterCanvas").get()[0].getContext("2d");
+var ctx = $("#latency-vu-canvas").get()[0].getContext("2d");
 
 // create a gradient for the fill. Note the strange
 // offset, since the gradient is calculated based on
 // the canvas, not the specific element we draw
-var gradient = ctx.createLinearGradient(0, 0, 0, 80);
-gradient.addColorStop(1, '#000000');
-gradient.addColorStop(0.75, '#ff0000');
-gradient.addColorStop(0.25, '#ffff00');
-gradient.addColorStop(0, '#ffffff');
+var gradient = ctx.createLinearGradient(0, 0, MAX_W, 0);
+gradient.addColorStop(1.00, '#FF0000');
+gradient.addColorStop(0.75, '#FFFF00');
+gradient.addColorStop(0.25, '#00FF00');
+gradient.addColorStop(0.00, '#000000');
 
 
 setupAudioNodes();
@@ -69,16 +72,15 @@ javascriptNode.onaudioprocess = function() {
     var average2 = getAverageVolume(array2);
 
     // clear the current state
-    ctx.clearRect(0, 0, 30, 80);
+    ctx.clearRect(0, 0, MAX_W, 140);
 
     // set the fill style
     ctx.fillStyle = gradient;
 
     // create the meters
-    ctx.fillRect(0, 80 - average, 10, 80);
-    ctx.fillRect(15, 80 - average2, 10, 80);
+    ctx.fillRect( 0, 10, average, 60);
+    ctx.fillRect( 0, 75, average2, 60);
 }
-
 function getAverageVolume(array) {
     var values = 0;
     var average;
@@ -90,6 +92,6 @@ function getAverageVolume(array) {
         values += array[i];
     }
 
-    average = values / length;
+    average = (values / length / 256) * MAX_W;
     return average;
 }

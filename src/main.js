@@ -724,14 +724,6 @@ console.info("#latency-input onchange=" + $(this).val());
 console.info("#latency-input recorder=" + LatencyRecorder);
                         /* TODO*/LatencyRecorder.setLatency($(this).val()) ; }) ;
 
-//             var source = ac.createBufferSource() ;
-//             source.connect(trackInputNodes[LatencyClip.track]) ;
-//             source.buffer = buffers[LatencyClip.id].buffer;
-
-//             push source node and the scheduled start time of the sample
-//             activeSources.push({sourceNode: source, sourceStartBar: beatNumber});
-//             source.start(ac.currentTime);
-
 
 //     drawTimeline();
 });
@@ -818,7 +810,7 @@ if (!!effects) // FIXME:
         if ($(this).hasClass('active')) {
             activeRecorder = createRecorder();
         } else {
-            destroyRecorder(activeRecorder);
+            destroyRecorder(activeRecorder , recordTrackNumber);
         }
     });
     $("#track" + trackNumber + "title").storage({
@@ -917,7 +909,7 @@ function createRecorder()
     return recorder;
 }
 
-function destroyRecorder(recorder)
+function destroyRecorder(recorder , recordTrackNumber)
 {
     //Stop Recording
     recorder.stop();
@@ -1012,14 +1004,15 @@ function presentLatencyModal()
 {
     FakeModalBgDiv.style.display = FakeModalDiv.style.display = 'block';
     $('body').trigger('solo-event', LATENCY_OUT_TRACK_N); $(this).button('toggle');
-    LatencyRecorder = createRecorder();
+    activeRecorder = LatencyRecorder = createRecorder();
+    $("#record" + LATENCY_IN_TRACK_N).button('toggle');
 }
 
 function dismissLatencyModal()
 {
     FakeModalBgDiv.style.display = FakeModalDiv.style.display = 'none';
     $('body').trigger('solo-event', LATENCY_OUT_TRACK_N); $(this).button('toggle');
-    destroyRecorder(LatencyRecorder);
+    destroyRecorder(LatencyRecorder , LATENCY_IN_TRACK_N);
 }
 
 window.onload = function init() {
@@ -1034,7 +1027,12 @@ window.onload = function init() {
 
     function onMediaSuccess(e) { startUserMedia(e); presentLatencyModal(); }
     function onMediaFail(e) { console.error("OpenDAW::onMediaFail() !micStream"); }
+
     navigator.getUserMedia({ audio: true }, onMediaSuccess, onMediaFail);
+
+
+// presentLatencyModal(); $('body').trigger('playPause-event');
+
 
     drawTimeline();
 };
