@@ -90,8 +90,10 @@ if (sampleTitle == 'latency.wav') console.info("createClipElements() in song.id=
             var currentStartTime = parseInt(song.startTime[sampleNumber]);
             var trackDiv = $("#track" + song.track);
 
-            createClipElements('sample', song.id, sampleNumber, currentStartTime,
-                               trackDiv, song.duration, song.track);
+            var clipDict = createClipElements('sample', song.id, sampleNumber, currentStartTime,
+                                              trackDiv, song.duration, song.track);
+            var span = clipDict.clipSpan;
+            var canvas = clipDict.clipCanvas;
 
             $("#sample" + song.id + "Span" + sampleNumber).resizable({
                 helper: "ui-resizable-helper",
@@ -99,7 +101,7 @@ if (sampleTitle == 'latency.wav') console.info("createClipElements() in song.id=
                 grid: pixelsPer16
             });
 
-            createClipWavesurfer('#08c', '#08c', song.url);
+            createClipWavesurfer(canvas, '#08c', '#08c', song.url);
 
             sampleNumber++;
         });
@@ -152,7 +154,7 @@ if (sampleTitle == 'latency.wav') console.info("createClip() out") ;
                 var bufferUrl = clip.bufferURL;
                 var clipId = clip.id;
                 var startTimes = clip.startTimes;
-                var trackId = sample.track;
+                var trackId = clip.track;
 
                 //load the buffer
                 load(bufferUrl, clipId);
@@ -173,15 +175,15 @@ if (sampleTitle == 'latency.wav') console.info("createClip() out") ;
 
 
 createNodes(LATENCY_OUT_TRACK_N); createTrack(LATENCY_OUT_TRACK_N);
-LatencyClip = createClipWavesurfer(LATENCY_PING_DICT) ;
+LatencyClip = createClip(LATENCY_PING_DICT) ;
 if (LatencyClip != undefined)
 {
-  load(LatencyClip.bufferURL, LatencyClip.id);
-  $.each(LatencyClip.startTimes, function()
-  {
-    var currentStartTime = this;
-    times[currentStartTime] = [ { id: LatencyClip.id , track: LatencyClip.track } ] ;
-  }) ;
+  var bufferUrl = LatencyClip.bufferURL;
+  var clipId = LatencyClip.id;
+  var startTimes = LatencyClip.startTimes;
+  var trackId = LatencyClip.track;
+  load(bufferUrl, clipId);
+  $.each(startTimes, function() { setStartTimes(this, clipId, trackId); }) ;
 }
 //             var source = ac.createBufferSource() ;
 //             source.connect(trackInputNodes[LatencyClip.track]) ;
@@ -196,9 +198,6 @@ if (LatencyClip != undefined)
 function createClipElements(idPrefix , clipId , sampleNumber , startTime ,
                             trackDiv , clipDuration , trackId)
 {
-if (sampleTitle == 'latency.wav') console.info("createClipElements() in startTime=" + startTime) ;
-
-
     var span = document.createElement('span');
     var canvas = document.createElement('canvas');
     var displayW = parseFloat(clipDuration) * pixelsPer4 * bpm / 60 ;
@@ -230,9 +229,11 @@ if (sampleTitle == 'latency.wav') console.info("createClipElements() in startTim
             setStartTimes(newStartTime, clipId, trackId);
         }
     });
+
+    return { clipSpan: span, clipCanvas: canvas };
 }
 
-function createClipWavesurfer(waveColor, progressColor, clipUrl)
+function createClipWavesurfer(canvas, waveColor, progressColor, clipUrl)
 {
     var wavesurfer = Object.create(WaveSurfer);
 
@@ -253,7 +254,7 @@ function load(src, id) {
     xhr.open('GET', src, true);
     xhr.responseType = 'arraybuffer';
     xhr.addEventListener('load', function(e) {
-        function loadAudioBuffer(buffer) { buffers[id] = {buffer: buffer}; }
+        function loadAudioBuffer(buffer) { buffers[id] = { buffer: buffer }; }
         ac.decodeAudioData(e.target.response, loadAudioBuffer, Error);
     }, false);
     xhr.send();
@@ -738,6 +739,11 @@ console.info("#latency-input recorder=" + LatencyRecorder);
 
 function createTrack(trackNumber) {
     $("#tracks").append("<div class=\"row-fluid\" id=\"selectTrack" + trackNumber + "\"><div class=\"span2 trackBox\" style=\"height: 84px;\"><p style=\"margin: 0 0 0 0;\" id=\"track" + trackNumber + "title\">Track" + trackNumber + "</p><div style=\"margin: 5px 0 5px 0;\" id=\"volumeSlider" + trackNumber + "\"></div><div class=\"btn-toolbar\" style=\"margin-top: 0px;\"><div class=\"btn-group\"><button type=\"button\" class=\"btn btn-mini\" id= \"solo" + trackNumber + "\"><i class=\"icon-headphones\"></i></button><button type=\"button\" class=\"btn btn-mini\" id= \"mute" + trackNumber + "\"><i class=\"icon-volume-off\"></i></button></div><div class=\"btn-group\"><button type=\"button\" class=\"btn btn-mini\" data-toggle=\"button\" id= \"record" + trackNumber + "\"><i class=\"icon-plus-sign\"></i></button></div></div></div><div id=\"track" + trackNumber + "\" class=\"span10 track\"></div></div>");
+
+
+if (!!effects) // FIXME:
+
+
     if (effects[trackNumber - 1] == null) {
         effects[trackNumber - 1] = [];
     }
@@ -827,9 +833,10 @@ function createTrack(trackNumber) {
             var sampleID = ui.helper.attr("data-id");
             var sampleDuration = ui.helper.attr("data-duration");
             var sampleURL = ui.helper.attr("data-url");
-
-            createClipElements('sample', sampleID, rand, sampleStartTime,
-                               $(this), sampleDuration, trackNumber);
+            var clipDict = createClipElements('sample', sampleID, rand, sampleStartTime,
+                                              $(this), sampleDuration, trackNumber);
+            var span = clipDict.clipSpan;
+            var canvas = clipDict.clipCanvas;
 // =
 // *            var span = document.createElement('span');
 // *            span.id = "sample" + sampleID + "Span" + rand;
@@ -861,7 +868,7 @@ function createTrack(trackNumber) {
 // *                }
 // *            });
 // =
-            createClipWavesurfer('violet', 'purple', sampleURL);
+            createClipWavesurfer(canvas, 'violet', 'purple', sampleURL);
 // =
 // *            var wavesurfer = Object.create(WaveSurfer);
 // *            wavesurfer.init({
@@ -933,8 +940,10 @@ function destroyRecorder(recorder)
         newBuffer.getChannelData(0).set(recordingBuffer[0]);
         newBuffer.getChannelData(1).set(recordingBuffer[1]);
         //newSource.buffer = newBuffer;
-        createClipElements('recording', recordingCount, '', startBar,
-                            trackDiv, recordingDuration, recordTrackNumber);
+        var clipDict = createClipElements('recording', recordingCount, '', startBar,
+                                          trackDiv, recordingDuration, recordTrackNumber);
+        var span = clipDict.clipSpan;
+        var canvas = clipDict.clipCanvas;
 // =
 // *        var span = document.createElement('span');
 // *        span.id = "recording" + recordingCount + "Span";
@@ -972,7 +981,7 @@ function destroyRecorder(recorder)
 // =
         recorder.exportWAV(function(blob) {
             var url = URL.createObjectURL(blob);
-            createClipWavesurfer('#08c', '#08c', url);
+            createClipWavesurfer(canvas, '#08c', '#08c', url);
 // =
 // *            var wavesurfer = Object.create(WaveSurfer);
 // *            wavesurfer.init({
@@ -1023,8 +1032,9 @@ window.onload = function init() {
         alert('No web audio support in this browser!');
     }
 
-//     navigator.getUserMedia({audio: true}, startUserMedia, function(e) {});
+    function onMediaSuccess(e) { startUserMedia(e); presentLatencyModal(); }
+    function onMediaFail(e) { console.error("OpenDAW::onMediaFail() !micStream"); }
+    navigator.getUserMedia({ audio: true }, onMediaSuccess, onMediaFail);
 
     drawTimeline();
-    presentLatencyModal();
 };
